@@ -1,0 +1,108 @@
+group 'vuekt'
+version '0.1.0'
+
+buildscript {
+    ext.kotlin_version = "1.1.3-eap-85"
+    ext.kotlin_frontend_plugin = "0.0.19"
+    ext.output_filename = "vuekt"
+
+    repositories {
+        maven { url = 'https://dl.bintray.com/kotlin/kotlin-eap-1.1' }
+        maven { url = 'https://dl.bintray.com/kotlin/kotlin-eap' }
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-frontend-plugin:$kotlin_frontend_plugin"
+    }
+}
+
+apply plugin: 'kotlin2js'
+apply plugin: 'org.jetbrains.kotlin.frontend'
+
+sourceSets {
+    main.kotlin.srcDirs += 'src/main/kotlin'
+
+    if(project.gradle.startParameter.taskNames.contains("run")) {
+        main.kotlin.srcDirs += 'src/test/kotlin'
+        main.resources.srcDirs += "src/main/resources"
+        main.resources.srcDirs += "src/test/resources"
+        main.output.resourcesDir = "build/js/resources"
+    }
+}
+
+repositories {
+    maven { url = 'https://dl.bintray.com/kotlin/kotlin-eap-1.1' }
+    maven { url = 'https://dl.bintray.com/kotlin/kotlin-eap' }
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+}
+
+kotlinFrontend {
+//    sourceMaps = true
+    npm {
+
+        devDependency("webpack", "2.6.1")
+        devDependency("webpack-dev-server", "2.4.4")
+        devDependency("css-loader", "0.28.4")
+        devDependency("style-loader", "0.18.2")
+        devDependency("to-string-loader", "1.1.5")
+        devDependency("file-loader", "0.11.2")
+        devDependency("karma")
+    }
+
+    webpackBundle {
+        bundleName = "main"
+        contentPath = file('src/test/web')
+        port = 9002
+//        publicPath = "/frontend/"
+//        proxyUrl = "http://localhost:9090"
+    }
+}
+
+compileKotlin2Js {
+    kotlinOptions.metaInfo = true
+    kotlinOptions.outputFile = "${projectDir}/build/js/${output_filename}.js"
+//    kotlinOptions.sourceMap = true
+    kotlinOptions.moduleKind = 'commonjs'
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn 'copyToDist'
+    baseName = project.name
+    from "build/js"
+    include "${output_filename}*.js"
+    include "${project.group}/**/*.*"
+}
+
+if(project.gradle.startParameter.taskNames.contains("jar")){
+    compileKotlin2Js.dependsOn 'cleanJar'
+}
+
+task cleanJar {
+    dependsOn 'cleanJs'
+    doFirst {
+        delete 'build/libs'
+        delete 'dist'
+    }
+}
+
+task cleanJs {
+    doFirst {
+        delete 'build/js'
+    }
+}
+
+task copyToDist(type: Copy){
+    from('build/js'){
+        include "${output_filename}*.js"
+        include "${project.group}/**/*.*"
+    }
+    into "dist/${project.version}"
+}
