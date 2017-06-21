@@ -46,7 +46,10 @@ dependencies {
 kotlinFrontend {
 //    sourceMaps = true
     npm {
+        dependency("vue", "2.3.4")
 
+        devDependency("vue-template-compiler", "2.3.4")
+        devDependency("vue-template-loader", "0.3.1")
         devDependency("webpack", "2.6.1")
         devDependency("webpack-dev-server", "2.4.4")
         devDependency("css-loader", "0.28.4")
@@ -84,6 +87,7 @@ jar {
 if(project.gradle.startParameter.taskNames.contains("jar")){
     compileKotlin2Js.dependsOn 'cleanJar'
 }
+compileKotlin2Js.dependsOn 'copyHtml'
 
 task cleanJar {
     dependsOn 'cleanJs'
@@ -105,4 +109,11 @@ task copyToDist(type: Copy){
         include "${project.group}/**/*.*"
     }
     into "dist/${project.version}"
+}
+
+task copyHtml(type: Copy){
+    from('src/test/kotlin'){
+        include "**/*.html"
+    }
+    into "build/js"
 }
