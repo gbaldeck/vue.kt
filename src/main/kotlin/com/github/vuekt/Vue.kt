@@ -11,9 +11,9 @@ abstract class Vue: VueComponent() {
       super.set(component.el, component)
     }
 
-    override operator fun get(el: String): VueComponent = super.get(el)
-    override operator fun set(el: String, component: VueComponent) {
-      super.set(el, component)
+    override operator fun get(key: String): VueComponent = super.get(key)
+    override operator fun set(key: String, value: VueComponent) {
+      super.set(key, value)
     }
   }
 
