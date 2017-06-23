@@ -4,7 +4,6 @@ package com.github.vuekt
  * Created by gbaldeck on 6/22/2017.
  */
 abstract class Vue: VueComponent() {
-  @JsName("components")
   open val components: Components = Components()
 
   class Components : VueCollection<String, VueComponent>() {

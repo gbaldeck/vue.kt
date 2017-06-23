@@ -4,13 +4,9 @@ package com.github.vuekt
  * Created by gbaldeck on 6/22/2017.
  */
 abstract class VueComponent {
-  @JsName("templateImport")
   abstract val templateImport: dynamic
-  @JsName("el")
   abstract val el: String
-  @JsName("methods")
   open val methods: Methods = Methods()
-  @JsName("data")
   open val data: () -> Data = { Data() }
 
   class Methods : VueCollection<String, () -> dynamic>() {
