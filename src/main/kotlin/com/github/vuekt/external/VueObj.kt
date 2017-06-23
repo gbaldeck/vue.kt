@@ -6,4 +6,6 @@ package com.github.vuekt.external
 @JsModule("vue")
 @JsNonModule
 external val vue_ext: dynamic = definedExternally
+
+@JsName("VueObj")
 val VueObj = vue_ext.default
