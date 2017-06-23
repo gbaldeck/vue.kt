@@ -1,28 +1,51 @@
 package com.github.vuekt
 
-import com.github.vuekt.external.clearInterval
-import com.github.vuekt.external.setInterval
-
 /**
  * Created by gbaldeck on 6/22/2017.
  */
-abstract class VueComponent: VueComponentOptions() {
-  @JsName("intervalId")
-  private val intervalId: dynamic
-  init {
-    intervalId = setInterval({
-      val self = this@VueComponent
-      val selfDynamic:dynamic = self
-      val intervalId = self.intervalId
-      if(templateImport !== undefined && templateImport !== null) {
-        templateImport(self)
-        clearInterval(intervalId)
-        console.log(self)
-        console.log(self.data())
-      }
-    }, 10)
+abstract class VueComponent {
+  @JsName("templateImport")
+  abstract val templateImport: dynamic
+  @JsName("el")
+  abstract val el: String
+  @JsName("methods")
+  open val methods: Methods = Methods()
+  @JsName("data")
+  open val data: () -> Data = { Data() }
 
+  class Methods : VueCollection<String, () -> dynamic>() {
+    override operator fun get(key: String): () -> dynamic = super.get(key)
+    override operator fun set(key: String, value: () -> dynamic) {
+      super.set(key, value)
+    }
   }
 
-  abstract fun vueInit()
+  fun methodsOf(vararg methods: Pair<String, () -> dynamic>): Methods {
+    return VueCollection.create(*methods)
+  }
+
+  class Data : VueCollection<String, dynamic>() {
+    override operator fun get(key: String): dynamic = super.get(key)
+    override operator fun set(key: String, value: dynamic) {
+      super.set(key, value)
+    }
+  }
+
+  fun dataOf(vararg data: Pair<String, dynamic>): Data {
+    return VueCollection.create(*data)
+  }
+
+  fun dataFunOf(vararg data: Pair<String, dynamic>): () -> Data {
+    return { dataOf(*data) }
+  }
+
+  open internal fun getActual(): dynamic{
+    val actual = js("new Object()")
+
+    actual.methods = methods.backingObject
+    actual.data = { data().backingObject }
+    templateImport(actual)
+
+    return actual
+  }
 }

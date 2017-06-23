@@ -1,31 +1,48 @@
 package com.github.vuekt
 
-import com.github.vuekt.external.clearInterval
-import com.github.vuekt.external.setInterval
-
 /**
  * Created by gbaldeck on 6/22/2017.
  */
+abstract class Vue: VueComponent() {
+  @JsName("components")
+  open val components: Components = Components()
 
-abstract class Vue: VueOptions() {
-  @JsName("vue")
-  protected var vue: dynamic = undefined
-  @JsName("intervalId")
-  private val intervalId: dynamic
+  class Components : VueCollection<String, VueComponent>() {
+    fun add(component: VueComponent) {
+      super.set(component.el, component)
+    }
 
-  abstract fun vueInit()
+    override operator fun get(el: String): VueComponent = super.get(el)
+    override operator fun set(el: String, component: VueComponent) {
+      super.set(el, component)
+    }
+  }
 
-  init {
-    intervalId = setInterval({
-      val self = this@Vue
-      val intervalId = self.intervalId
-      if(templateImport !== undefined && templateImport !== null) {
-        templateImport(self)
-        vue = js("new _.com.github.vuekt.external.VueObj(self)")
-        clearInterval(intervalId)
-        console.log(self)
-      }
-    }, 10)
+  fun componentsOf(vararg components: Pair<String, VueComponent>): Components {
+    return VueCollection.create(*components)
+  }
+
+  fun componentsOf(vararg components: VueComponent): Components{
+    val obj = Components()
+    components.forEach {
+      obj.add(it)
+    }
+    return obj
+  }
+
+  override internal fun getActual(): dynamic{
+    val actual = super.getActual()
+    actual.el = el
+
+    val componentsObj: dynamic = js("new Object()")
+    components.forEach {
+      (key, value) ->
+      componentsObj[key] = value.getActual()
+    }
+
+    actual.components = componentsObj
+
+    return actual
   }
 }
 
