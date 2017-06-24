@@ -8,4 +8,10 @@ class MyComponent: VueComponent(){
   override val templateImport: dynamic = require("./MyComponent.html")
   override val el: String = "my-component"
   override val data = dataFunOf("title" to "Hello world!")
+  override val methods: Methods = methodsOf("sayHello" to { self.title })
+
+  override fun created() {
+    self.title = "Changed"
+    console.log("After")
+  }
 }

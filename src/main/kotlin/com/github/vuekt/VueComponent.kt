@@ -8,15 +8,18 @@ abstract class VueComponent {
   abstract val el: String
   open val methods: Methods = Methods()
   open val data: () -> Data = { Data() }
+  protected var self: dynamic = undefined
 
-  class Methods : VueCollection<String, () -> dynamic>() {
-    override operator fun get(key: String): () -> dynamic = super.get(key)
-    override operator fun set(key: String, value: () -> dynamic) {
+  open fun created() {}
+
+  class Methods : VueCollection<String, Function<*>>() {
+    override operator fun get(key: String): Function<*> = super.get(key)
+    override operator fun set(key: String, value: Function<*>) {
       super.set(key, value)
     }
   }
 
-  fun methodsOf(vararg methods: Pair<String, () -> dynamic>): Methods {
+  fun methodsOf(vararg methods: Pair<String, Function<*>>): Methods {
     return VueCollection.create(*methods)
   }
 
@@ -37,6 +40,10 @@ abstract class VueComponent {
 
   open internal fun getActual(): dynamic{
     val actual = js("new Object()")
+    actual.created = {
+      self = js("this")
+      created()
+    }
 
     actual.methods = methods.backingObject
     actual.data = { data().backingObject }
