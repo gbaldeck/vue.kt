@@ -8,7 +8,8 @@ abstract class VueComponent {
   abstract val el: String
   open val methods: Methods = Methods()
   open val data: () -> Data = { Data() }
-  protected var self: dynamic = undefined
+  var self: dynamic = undefined
+    private set
 
   open fun created() {}
 
