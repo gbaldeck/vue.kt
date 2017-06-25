@@ -11,3 +11,5 @@ external val Object: dynamic
 external fun setInterval(function: () -> dynamic, time: Number): dynamic
 
 external fun clearInterval(id: dynamic)
+
+external val Kotlin:dynamic

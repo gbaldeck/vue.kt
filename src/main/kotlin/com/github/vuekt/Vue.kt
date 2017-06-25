@@ -33,7 +33,7 @@ abstract class Vue: VueComponent() {
     val actual = super.getActual()
     actual.el = el
 
-    val componentsObj: dynamic = js("new Object()")
+    val componentsObj: dynamic = newObject()
     components.forEach {
       (key, value) ->
       componentsObj[key] = value.getActual()

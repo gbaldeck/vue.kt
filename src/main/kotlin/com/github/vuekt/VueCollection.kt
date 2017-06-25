@@ -5,7 +5,7 @@ import com.github.vuekt.external.Object
 /**
  * Created by gbaldeck on 6/23/2017.
  */
-open class VueCollection<in K, V>{
+open class VueCollection<in K, V>(backingObj: dynamic = newObject()){
   companion object {
     inline fun <reified T: VueCollection<K, V>, K, V> create(vararg pairs: Pair<K, V>): T{
       val obj = T::class.createInstance()
@@ -17,7 +17,8 @@ open class VueCollection<in K, V>{
     }
   }
 
-  val backingObject: dynamic = js("new Object()")
+  var backingObject: dynamic = backingObj
+    private set
 
   open operator fun get(key: K): V{
     return backingObject[key]
