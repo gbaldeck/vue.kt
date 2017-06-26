@@ -9,5 +9,17 @@
         Coordinates: {{ x }} / {{ y }}
         - <span v-on:mousemove.stop>DEAD SPOT</span>
     </p>
-    <input type="text" v-on:keyup="alertMe">
+    <input type="text" v-on:keyup.enter.space="alertMe">
+    <hr>
+    <h3>Two way data binding</h3>
+    <input type="text" v-model="name">
+    <p>{{ name }}</p>
+    <p>Function name: {{ functionName() }}</p>
+    <hr>
+    <h3>Computed properties</h3>
+    <button v-on:click="computedCounter++">Increase</button>
+    <button v-on:click="computedCounter--">Decrease</button>
+    <button v-on:click="computedCounter2++">Increase second</button>
+    <p>Counter: {{computedCounter}} | {{computedCounter2}}</p>
+    <p>Result: {{methodOutput()}} | {{computedOutput}}</p>
 </div>

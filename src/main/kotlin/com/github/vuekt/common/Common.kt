@@ -33,6 +33,17 @@ object ObjectHelper {
       keyVal(Pair(it, obj[it]))
     }
   }
+
+  fun nonEnumerableProperties(target: dynamic): Array<String> {
+    val enum_and_nonenum = Object.getOwnPropertyNames(target);
+    val enum_only = Object.keys(target);
+    val nonenum_only = enum_and_nonenum.filter({
+      key ->
+      val indexInEnum = enum_only.indexOf(key);
+      indexInEnum == -1
+    })
+    return nonenum_only
+  }
 }
 
 fun newObject(): dynamic = js("new Object()")
@@ -44,3 +55,7 @@ internal fun String.camelToDashCase(): String {
     "$g1-$g2"
   })
 }
+
+fun isNullOrUndefined(value: dynamic): Boolean = value === undefined || value === null
+
+fun isNotNullOrUndefined(value: dynamic): Boolean = !isNullOrUndefined(value)

@@ -15,3 +15,5 @@ external fun clearInterval(id: dynamic)
 external val Kotlin:dynamic
 
 external fun alert(message: dynamic)
+
+external fun setTimeout(function: Function<*>, time: Number)

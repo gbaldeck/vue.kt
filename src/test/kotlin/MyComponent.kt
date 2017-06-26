@@ -1,4 +1,5 @@
 import com.github.vuekt.core.VueComponent
+import com.github.vuekt.external.alert
 import com.github.vuekt.external.require
 
 /**
@@ -14,31 +15,69 @@ class MyComponent: VueComponent(){
   var counter: Int by Data()
   var x: Int by Data()
   var y: Int by Data()
+  var name: String by Data()
+
+  var computedCounter: Int by Data()
+  var computedCounter2: Int by Data()
+//  var computedOutput: () -> String by Computed()
+  var methodOutput: () -> String by Method()
+
+  var watchCounter: (Int) -> Unit by Watch(this::computedCounter)
 
   var sayHello: () -> String by Method()
   var increase: (Int, dynamic) -> Unit by Method()
   var updateCoordinates: (dynamic) -> Unit by Method()
   var dummy: (dynamic) -> Unit by Method()
   var alertMe: () -> Unit by Method()
+  var functionName: () -> String by Method()
 
   init {
-    counter = 0
-    hello = "hello"
-    google = "https://www.google.com/"
-    finishedLink = """<a href="$google">Google Finished Link</a>"""
-    val tempHello = hello
-    sayHello = { hello }
-    increase = { step, event -> counter += step }
-
-    x = 0
-    y = 0
-    updateCoordinates = {
-      x = it.clientX;
-      y = it.clientY;
-    }
-    dummy = {
-      it.stopPropagation();
-    }
+//    counter = 0
+//    hello = "hello"
+//    google = "https://www.google.com/"
+//    finishedLink = """<a href="$google">Google Finished Link</a>"""
+//    val tempHello = hello
+//    sayHello = { hello }
+//    increase = { step, event -> counter += step }
+//    name = "Graham"
+//
+//    x = 0
+//    y = 0
+//    updateCoordinates = {
+//      x = it.clientX;
+//      y = it.clientY;
+//    }
+//    dummy = {
+//      it.stopPropagation();
+//    }
+//    alertMe = {
+//      alert("Alert")
+//    }
+//    functionName = {
+//      name
+//    }
+//
+//    //Testing computed
+//    computedCounter = 0
+//    computedCounter2 = 0
+//    computedOutput = {
+//      console.log("computedOutput called")
+//      if(computedCounter > 5)
+//        "Greater than 5"
+//      else
+//        "Less than 5"
+//    }
+//    methodOutput = {
+//      console.log("methodOutput called")
+//      if(computedCounter > 5)
+//        "Greater than 5"
+//      else
+//        "Less than 5"
+//    }
+//    watchCounter = {
+//      value ->
+//      console.log("$computedCounter | $value")
+//    }
   }
 
   override fun created() {

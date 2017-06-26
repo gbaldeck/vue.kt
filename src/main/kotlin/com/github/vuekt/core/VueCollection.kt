@@ -1,6 +1,8 @@
 package com.github.vuekt.core
 
+import com.github.vuekt.common.ObjectHelper
 import com.github.vuekt.common.createInstance
+import com.github.vuekt.common.isNotNullOrUndefined
 import com.github.vuekt.common.newObject
 import com.github.vuekt.external.Object
 
@@ -34,6 +36,16 @@ fun <K, V> VueCollection<K, V>.forEach(keyVal: (Pair<K, V>) -> Unit){
   val keys = Object.keys(backingObject) as Array<K>
   keys.forEach {
     keyVal(Pair(it, backingObject[it]))
+  }
+}
+
+fun VueCollection<*, *>.finalizeBackingObject(backingObj: dynamic = backingObject) {
+  ObjectHelper.forEach<String, dynamic>(backingObj) {
+    (key, value) ->
+    if(isNotNullOrUndefined(value.backingObject)){
+      finalizeBackingObject(value.backingObject)
+      backingObj[key] = value.backingObject
+    }
   }
 }
 
