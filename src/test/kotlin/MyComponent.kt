@@ -1,4 +1,4 @@
-import com.github.vuekt.VueComponent
+import com.github.vuekt.core.VueComponent
 import com.github.vuekt.external.require
 
 /**
@@ -8,44 +8,19 @@ class MyComponent: VueComponent(){
   override val templateImport: dynamic = require("./MyComponent.html")
   override val el: String = "my-component"
 
-  var title: String by Data()
-  var method: () -> String by Method()
+  var google: String by Data()
+  var hello: String by Data()
+  var finishedLink: String by Data()
+
+  var sayHello: () -> String by Method()
 
   init {
-    title = "test"
-    method = { "test method" }
+    hello = "hello"
+    google = "https://www.google.com/"
+    finishedLink = """<a href="$google">Google Finished Link</a>"""
+    val tempHello = hello
+    sayHello = { hello }
   }
-
-//  override val data =
-//      dataFunOf(
-//          "title" to "First render",
-//          "test" to "https://www.google.com/",
-//          "finishedLink" to """<a href="http://google.com">Google</a>""")
-//
-//  interface methodNames { var sayHello: () -> Unit; var increase: () -> Boolean }
-//  override val methods: Methods =
-//      methodsOf<methodNames>{
-//        sayHello = {
-//            self.title = "Hello!"
-//            self.title
-//        }
-//
-//        increase = {
-//          true
-//        }
-//      }
-
-//  override val methods: Methods =
-//      methodsOf(
-//          "sayHello" to {
-//            console.log(this)
-//            self.title = "Hello!"
-//            self.title
-//          },
-//          "increase" to {
-//
-//          }
-//      )
 
   override fun created() {
 //    self.title = "Hello World!"

@@ -1,4 +1,4 @@
-package com.github.vuekt
+package com.github.vuekt.common
 
 import com.github.vuekt.external.Object
 
@@ -36,3 +36,11 @@ object ObjectHelper {
 }
 
 fun newObject(): dynamic = js("new Object()")
+
+internal fun String.camelToDashCase(): String {
+  return this.replace(Regex("([a-z])([A-Z])"), {
+    result ->
+    val (g1: String, g2: String) = result.destructured
+    "$g1-$g2"
+  })
+}

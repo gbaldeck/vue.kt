@@ -1,4 +1,4 @@
-package com.github.vuekt
+package com.github.vuekt.common
 
 /**
  * Created by gbaldeck on 6/25/2017.

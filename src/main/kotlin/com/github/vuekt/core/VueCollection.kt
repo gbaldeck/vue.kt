@@ -1,5 +1,7 @@
-package com.github.vuekt
+package com.github.vuekt.core
 
+import com.github.vuekt.common.createInstance
+import com.github.vuekt.common.newObject
 import com.github.vuekt.external.Object
 
 /**

@@ -1,4 +1,4 @@
-import com.github.vuekt.Vue
+import com.github.vuekt.core.Vue
 import com.github.vuekt.external.require
 
 /**
@@ -7,7 +7,14 @@ import com.github.vuekt.external.require
 class VueApp: Vue(){
   override val templateImport: dynamic = require("VueApp.html")
   override val el: String = "#app"
-  override val components: Components = componentsOf(MyComponent())
+
+  var myComponent: MyComponent by Component()
+  var myData: String by Data()
+
+  init {
+//    console.log(myComponent)
+    myComponent= MyComponent()
+  }
 
   override fun created() {
     console.log("Neeto masquito")

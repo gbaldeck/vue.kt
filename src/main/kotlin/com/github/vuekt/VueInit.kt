@@ -1,5 +1,6 @@
 package com.github.vuekt
 
+import com.github.vuekt.core.Vue
 import com.github.vuekt.external.VueObj
 
 /**

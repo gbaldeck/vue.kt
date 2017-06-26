@@ -1,4 +1,4 @@
-package com.github.vuekt
+package com.github.vuekt.common
 
 import kotlin.reflect.KClass
 
