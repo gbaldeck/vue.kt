@@ -3,5 +3,11 @@
     <hr>
     <p v-html="finishedLink"></p>
     <hr>
-    <button v-on:click="increase">Touch Me</button>
+    <button v-on:click="increase(2, $event)">Touch Me</button>
+    <p>{{counter}}</p>
+    <p v-on:mousemove="updateCoordinates">
+        Coordinates: {{ x }} / {{ y }}
+        - <span v-on:mousemove.stop>DEAD SPOT</span>
+    </p>
+    <input type="text" v-on:keyup="alertMe">
 </div>

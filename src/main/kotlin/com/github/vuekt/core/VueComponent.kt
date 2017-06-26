@@ -39,21 +39,21 @@ abstract class VueComponent {
       if(!assigned)
         throwVueKtException("The Vue ${this::class.simpleName?.toLowerCase() ?: ""} property '${property.name}' in '${thisRef::class.simpleName}' was never assigned a value.")
 
-      if(actualRun && vueThis !== undefined) {
-        console.log("vueThis: ", vueThis)
+      if(actualRun && vueThis !== undefined)
         return vueThis[property.name]
-      }
-      else {
-        console.log("storage object: ", storageObj)
+      else
         return storageObj[property.name]
-      }
     }
 
     operator fun setValue(thisRef: Any, property: KProperty<*>, value: V) {
       if(assigned && singleAssign)
         throwVueKtException("The Vue ${this::class.simpleName?.toLowerCase() ?: ""} property '${property.name}' in '${thisRef::class.simpleName}' has already been assigned.")
 
-      storageObj[property.name] = value
+      if(actualRun && vueThis !== undefined)
+        vueThis[property.name] = value
+      else
+        storageObj[property.name] = value
+
       assigned = true
     }
   }
