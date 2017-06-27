@@ -1,8 +1,8 @@
 @file:Suppress("UNCHECKED_CAST")
 package com.github.vuekt.core
 
-import com.github.vuekt.common.newObject
-import com.github.vuekt.common.throwVueKtException
+import com.github.vuekt.common.*
+import com.github.vuekt.external.Object
 import kotlin.reflect.KProperty
 
 /**
@@ -24,8 +24,8 @@ abstract class VueComponent {
 
   open fun created() {}
 
-  protected inner class Data(singleAssign: Boolean = false):
-      VueOption<dynamic>(singleAssign, data)
+  protected inner class Data<T>(initialValue: T? = null, singleAssign: Boolean = false):
+      VueOption<T>(initialValue, singleAssign, data, null)
 
   protected inner class ComputedContainer<T>{
     val backingObject = newObject()
@@ -39,35 +39,49 @@ abstract class VueComponent {
       set(value) { backingObject["set"] = value }
   }
 
-  protected inner class Computed<T> private constructor(getter: Function<T>, setter: ((T) -> Unit)?, singleAssign: Boolean){
+  protected inner class Computed<T>(val getter: () -> T, val setter: ((T) -> Unit)? = null, val singleAssign: Boolean = false){
     val computed = ComputedContainer<T>()
 
-    constructor(getter: Function<T>, singleAssign: Boolean = false): this(getter, null, singleAssign) {
+    constructor(getter: () -> T, singleAssign: Boolean): this(getter, null, singleAssign)
 
+    init {
+      computed.getter = getter
+      setter?.let { computed.setter = it }
     }
 
+    operator fun getValue(thisRef: Any, propertyLocal: KProperty<*>): T {
+      return getter()
+    }
 
-
+    operator fun setValue(thisRef: Any, propertyLocal: KProperty<*>, value: T) {
+      setter?.let {
+        it(value)
+      } ?: throwVueKtException("The Vue ${this::class.simpleName?.toLowerCase() ?: ""} property '${propertyLocal.name}' in '${thisRef::class.simpleName}' was not assigned a setter.")
+    }
   }
 
-  protected inner class Watch<T: Function<Unit>>(property: KProperty<*>, singleAssign: Boolean = false):
-      VueOption<T>(singleAssign, watch as VueCollection<String, T>, property)
+  protected inner class Watch<T: (V, V) -> Unit, V>(property: KProperty<V>, singleAssign: Boolean = false):
+      VueOption<T>(null, singleAssign, watch as VueCollection<String, T>, property)
 
-  protected inner class Method<T: Function<*>>(singleAssign: Boolean = false):
-      VueOption<T>(singleAssign, methods as VueCollection<String, T>)
-
-
+  protected inner class Method<T: Function<*>>(initialValue: T? = null, singleAssign: Boolean = false):
+      VueOption<T>(initialValue, singleAssign, methods as VueCollection<String, T>, null)
 
 
-  protected open inner class VueOption<V>(val singleAssign: Boolean,
+
+  protected open inner class VueOption<V>(val initialValue: V?,
+                                          val singleAssign: Boolean,
                                           val storageObj: VueCollection<String, V>,
-                                          val property: KProperty<*>? = null) {
-    private var assigned = false
+                                          val property: KProperty<*>?) {
+    var assigned = false
+      private set
 
     open operator fun getValue(thisRef: Any, propertyLocal: KProperty<*>): V {
-      console.log("get is run")
-      if(!assigned)
-        throwVueKtException("The Vue ${this::class.simpleName?.toLowerCase() ?: ""} property '${propertyLocal.name}' in '${thisRef::class.simpleName}' was never assigned a value.")
+      if(!assigned) {
+        if(isNotNullOrUndefined(initialValue))
+          return initialValue!!
+        else
+          throwVueKtException("The Vue ${this::class.simpleName?.toLowerCase() ?: ""} property '${propertyLocal.name}' in '${thisRef::class.simpleName}' was never assigned a value.")
+      }
 
       val propName = property?.name ?: propertyLocal.name
       if(vueThis !== undefined)
@@ -77,8 +91,7 @@ abstract class VueComponent {
     }
 
     open operator fun setValue(thisRef: Any, propertyLocal: KProperty<*>, value: V) {
-      console.log("set is run")
-      if(assigned && singleAssign)
+      if((assigned || isNotNullOrUndefined(initialValue)) && singleAssign)
         throwVueKtException("The Vue ${this::class.simpleName?.toLowerCase() ?: ""} property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has already been assigned.")
 
       val propName = property?.name ?: propertyLocal.name
@@ -91,9 +104,25 @@ abstract class VueComponent {
     }
   }
 
+  private fun setDelegateInitialValues() {
+    val thisDynamic: dynamic = this
+
+    (Object.getOwnPropertyNames(thisDynamic.__proto__) as Array<String>).forEach {
+      val delegate = thisDynamic["$it\$delegate"]
+
+      if(isNotNullOrUndefined(delegate)) {
+        if(isNotNullOrUndefined(delegate.initialValue) && !delegate.assigned)
+          thisDynamic[it] = delegate.initialValue
+        else if(isNotNullOrUndefined(delegate.computed))
+          computed[it] = delegate.computed.backingObject
+      }
+    }
+  }
+
   open internal fun getActual(): dynamic{
+    setDelegateInitialValues()
+
     val actual = newObject()
-    console.log(this)
     actual.created = {
       vueThis = js("this")
       console.log("vueThis: ", vueThis)
@@ -107,6 +136,7 @@ abstract class VueComponent {
       actual.data = { data.backingObject }
     }
 
+    console.log("computed: ", computed.backingObject)
     actual.computed = computed.backingObject
     actual.watch = watch.backingObject
     actual.methods = methods.backingObject
