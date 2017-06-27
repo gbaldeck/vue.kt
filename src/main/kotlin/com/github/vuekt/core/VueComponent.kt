@@ -39,7 +39,14 @@ abstract class VueComponent {
       set(value) { backingObject["set"] = value }
   }
 
-  protected inner class Computed<T>(getter: Function<T>, setter: ((T) -> Unit)? = null, singleAssign: Boolean = false){
+  protected inner class Computed<T> private constructor(getter: Function<T>, setter: ((T) -> Unit)?, singleAssign: Boolean){
+    val computed = ComputedContainer<T>()
+
+    constructor(getter: Function<T>, singleAssign: Boolean = false): this(getter, null, singleAssign) {
+
+    }
+
+
 
   }
 
@@ -86,6 +93,7 @@ abstract class VueComponent {
 
   open internal fun getActual(): dynamic{
     val actual = newObject()
+    console.log(this)
     actual.created = {
       vueThis = js("this")
       console.log("vueThis: ", vueThis)
