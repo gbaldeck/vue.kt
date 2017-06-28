@@ -4,7 +4,9 @@ package io.vuekt.framework.vue.common
  * Created by gbaldeck on 6/28/2017.
  */
 fun newProxy(target: dynamic, handler: ProxyHandler){
-    return js("new Proxy(target, handler.backingObject)")
+  console.log("handler backing obj: ", handler.backingObject)
+  console.log("target: ", target)
+  return js("new Proxy(target, handler.backingObject)")
 }
 
 class ProxyHandler{
