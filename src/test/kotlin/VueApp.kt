@@ -1,5 +1,5 @@
-import com.github.vuekt.core.Vue
-import com.github.vuekt.external.require
+import io.vuekt.framework.vue.core.Vue
+import io.vuekt.framework.vue.external.require
 
 /**
  * Created by gbaldeck on 6/22/2017.

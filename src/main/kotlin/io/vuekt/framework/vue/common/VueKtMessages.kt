@@ -1,4 +1,4 @@
-package com.github.vuekt.common
+package io.vuekt.framework.vue.common
 
 /**
  * Created by gbaldeck on 6/25/2017.

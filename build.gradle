@@ -48,8 +48,6 @@ kotlinFrontend {
     npm {
         dependency("vue", "2.3.4")
 
-        dependency("proxy-polyfill", "0.1.7")
-
         devDependency("vue-template-compiler", "2.3.4")
         devDependency("vue-template-es2015-compiler", "1.5.2")
         devDependency("vue-template-loader", "0.3.1") //this requires the above 2 devDependencies

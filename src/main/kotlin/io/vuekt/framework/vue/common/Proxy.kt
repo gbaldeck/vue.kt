@@ -1,19 +1,10 @@
-package com.github.vuekt.external
-
-import com.github.vuekt.common.newObject
+package io.vuekt.framework.vue.common
 
 /**
  * Created by gbaldeck on 6/28/2017.
  */
-@JsModule("proxy-polyfill/proxy.min")
-@JsNonModule
-external val Proxy_ext:dynamic
-
-object Proxy{
-  operator fun invoke(target: dynamic, handler: ProxyHandler){
-    val proxy = Proxy_ext
-    return js("new proxy(target, handler.backingObject)")
-  }
+fun newProxy(target: dynamic, handler: ProxyHandler){
+    return js("new Proxy(target, handler.backingObject)")
 }
 
 class ProxyHandler{

@@ -1,10 +1,10 @@
-package com.github.vuekt.core
+package io.vuekt.framework.vue.core
 
-import com.github.vuekt.common.ObjectHelper
-import com.github.vuekt.common.createInstance
-import com.github.vuekt.common.isNotNullOrUndefined
-import com.github.vuekt.common.newObject
-import com.github.vuekt.external.Object
+import io.vuekt.framework.vue.common.ObjectHelper
+import io.vuekt.framework.vue.common.createInstance
+import io.vuekt.framework.vue.common.isNotNullOrUndefined
+import io.vuekt.framework.vue.common.newObject
+import io.vuekt.framework.vue.external.Object
 
 /**
  * Created by gbaldeck on 6/23/2017.

@@ -1,6 +1,6 @@
-package com.github.vuekt.core
+package io.vuekt.framework.vue.core
 
-import com.github.vuekt.common.throwVueKtException
+import io.vuekt.framework.vue.common.throwVueKtException
 import kotlin.reflect.KProperty
 
 /**

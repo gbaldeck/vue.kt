@@ -1,4 +1,4 @@
-package com.github.vuekt.external
+package io.vuekt.framework.vue.external
 
 /**
  * Created by gbaldeck on 6/21/2017.

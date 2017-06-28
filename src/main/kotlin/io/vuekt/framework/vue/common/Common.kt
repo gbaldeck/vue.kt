@@ -1,6 +1,6 @@
-package com.github.vuekt.common
+package io.vuekt.framework.vue.common
 
-import com.github.vuekt.external.Object
+import io.vuekt.framework.vue.external.Object
 
 /**
  * Created by gbaldeck on 6/22/2017.

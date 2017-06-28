@@ -1,6 +1,6 @@
-import com.github.vuekt.core.VueComponent
-import com.github.vuekt.external.alert
-import com.github.vuekt.external.require
+import io.vuekt.framework.vue.core.VueComponent
+import io.vuekt.framework.vue.external.alert
+import io.vuekt.framework.vue.external.require
 
 /**
  * Created by gbaldeck on 6/22/2017.

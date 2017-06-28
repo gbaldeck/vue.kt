@@ -1,8 +1,10 @@
 @file:Suppress("UNCHECKED_CAST")
-package com.github.vuekt.core
+package io.vuekt.framework.vue.core
 
-import com.github.vuekt.common.*
-import com.github.vuekt.external.Object
+import io.vuekt.framework.vue.common.isNotNullOrUndefined
+import io.vuekt.framework.vue.common.newObject
+import io.vuekt.framework.vue.common.throwVueKtException
+import io.vuekt.framework.vue.external.Object
 import kotlin.reflect.KProperty
 
 /**

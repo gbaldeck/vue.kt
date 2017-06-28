@@ -1,7 +1,7 @@
-package com.github.vuekt
+package io.vuekt.framework.vue
 
-import com.github.vuekt.core.Vue
-import com.github.vuekt.external.VueObj
+import io.vuekt.framework.vue.core.Vue
+import io.vuekt.framework.vue.external.VueObj
 
 /**
  * Created by gbaldeck on 6/23/2017.
