@@ -1,9 +1,7 @@
 @file:Suppress("UNCHECKED_CAST")
 package io.vuekt.framework.vue.core
 
-import io.vuekt.framework.vue.common.isNotNullOrUndefined
-import io.vuekt.framework.vue.common.newObject
-import io.vuekt.framework.vue.common.throwVueKtException
+import io.vuekt.framework.vue.common.*
 import io.vuekt.framework.vue.external.Object
 import kotlin.reflect.KProperty
 
@@ -32,7 +30,7 @@ abstract class VueComponent {
   protected inner class ComputedContainer<T>{
     val backingObject = newObject()
 
-    var getter: Function<T>
+    var getter: () -> T
       get() = backingObject["get"]
       set(value) { backingObject["get"] = value }
 
@@ -41,18 +39,48 @@ abstract class VueComponent {
       set(value) { backingObject["set"] = value }
   }
 
-  protected inner class Computed<T>(val getter: () -> T, val setter: ((T) -> Unit)? = null, val singleAssign: Boolean = false){
+  protected inner class Computed<T>(val getter: KProperty<() -> T>,
+                                    val setter: (KProperty<(T) -> Unit>)? = null,
+                                    val singleAssign: Boolean = false) {
+
+    private val dynVueComp:dynamic = this@VueComponent
+    private var getterAssigned: Boolean = false
+    private var setterAssigned: Boolean = false
+
     val computed = ComputedContainer<T>()
 
-    constructor(getter: () -> T, singleAssign: Boolean): this(getter, null, singleAssign)
+    constructor(getter: KProperty<() -> T>, singleAssign: Boolean): this(getter, null, singleAssign)
 
     init {
-      computed.getter = getter
-      setter?.let { computed.setter = it }
+      if(isNotNullOrUndefined(dynVueComp[getter.name]))
+        computed.getter = dynVueComp[getter.name]
+
+      setter?.let {
+        if(isNotNullOrUndefined(dynVueComp[it.name]))
+          computed.setter = dynVueComp[it.name]
+      }
+
+      val handler = ProxyHandler()
+      handler.set = {
+        target, property, value, receiver ->
+        if(property == getter.name)
+          computed.getter = value
+
+        setter?.let {
+          if(property == it.name)
+            computed.setter = value
+        }
+        target[property] = value
+        true
+      }
+      newProxy(this@VueComponent, handler)
     }
 
     operator fun getValue(thisRef: Any, propertyLocal: KProperty<*>): T {
-      return getter()
+      if(isNullOrUndefined(computed.getter))
+        throwVueKtException("The getter property '${getter.name}' for Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has not been assigned yet.")
+
+      return computed.getter()
     }
 
     operator fun setValue(thisRef: Any, propertyLocal: KProperty<*>, value: T) {
