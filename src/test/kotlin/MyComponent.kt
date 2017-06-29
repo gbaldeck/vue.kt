@@ -21,7 +21,9 @@ class MyComponent: VueComponent(){
   var computedCounter2: Int by Data()
   var methodOutput: () -> String by Method()
 
-  val computedOutputGet: () -> String
+  val computedOutputGet: () -> String = {
+    "test"
+  }
   var computedOutput: String by Computed(this::computedOutputGet)
 
   var watchCounter: (Int, Int) -> Unit by Watch(this::computedCounter)
@@ -34,11 +36,8 @@ class MyComponent: VueComponent(){
   var functionName: () -> String by Method()
 
   init {
-//    console.log(computedOutput)
-    computedOutputGet = {
-      "test"
-    }
-    console.log(hello)
+    console.log(computedOutput)
+    computedOutput = "test"
     counter = 0
     hello = "hello"
     google = "https://www.google.com/"
@@ -64,7 +63,7 @@ class MyComponent: VueComponent(){
       name
     }
 
-    //Testing computed
+    //Testing computedContainer
     computedCounter = 0
     computedCounter2 = 0
 //    computedOutput = {
@@ -75,7 +74,6 @@ class MyComponent: VueComponent(){
 //        "Less than 5"
 //    }
     methodOutput = {
-      console.log("methodOutput called")
       if(computedCounter > 5)
         "Greater than 5"
       else

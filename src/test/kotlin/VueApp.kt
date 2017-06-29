@@ -17,6 +17,6 @@ class VueApp: Vue(){
   }
 
   override fun created() {
-    console.log("Neeto masquito")
+
   }
 }

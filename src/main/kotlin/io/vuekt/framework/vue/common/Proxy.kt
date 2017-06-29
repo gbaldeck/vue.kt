@@ -3,34 +3,37 @@ package io.vuekt.framework.vue.common
 /**
  * Created by gbaldeck on 6/28/2017.
  */
-fun newProxy(target: dynamic, handler: ProxyHandler){
-  console.log("handler backing obj: ", handler.backingObject)
-  console.log("target: ", target)
+typealias ProxyGet = (target: dynamic, property: String, receiver: dynamic) -> dynamic
+typealias ProxySet = (target: dynamic, property: String, value: dynamic, receiver: dynamic) -> Boolean
+typealias ProxyConstruct = (target: dynamic, argumentsList: Array<dynamic>, newTarget: dynamic) -> Any
+typealias ProxyApply = (target: dynamic, thisArg: dynamic, argumentsList: Array<dynamic>) -> dynamic
+
+fun newProxy(target: dynamic, handler: ProxyHandler): dynamic {
   return js("new Proxy(target, handler.backingObject)")
 }
 
 class ProxyHandler{
   val backingObject = newObject()
 
-  var get: ((target: dynamic, property: String, receiver: dynamic) -> dynamic)?
+  var get: ProxyGet?
     get() = backingObject["get"]
     set(block){
       backingObject["get"] = block
     }
 
-  var set: ((target: dynamic, property: String, value: dynamic, receiver: dynamic) -> Boolean)?
+  var set: ProxySet?
     get() = backingObject["set"]
     set(block){
       backingObject["set"] = block
     }
 
-  var construct: ((target: dynamic, argumentsList: Array<dynamic>, newTarget: dynamic) -> Any)?
+  var construct: ProxyConstruct?
     get() = backingObject["construct"]
     set(block){
       backingObject["construct"] = block
     }
 
-  var apply: ((target: dynamic, thisArg: dynamic, argumentsList: Array<dynamic>) -> dynamic)?
+  var apply: ProxyApply?
     get() = backingObject["apply"]
     set(block){
       backingObject["apply"] = block

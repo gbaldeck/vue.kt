@@ -27,21 +27,40 @@ abstract class VueComponent {
   protected inner class Data<T>(initialValue: T? = null, singleAssign: Boolean = false):
       VueOption<T>(initialValue, singleAssign, data, null)
 
-  protected inner class ComputedContainer<T>{
-    val backingObject = newObject()
+  protected inner class ComputedContainer<T>(val singleAssign: Boolean){
+    private val backingObject = newObject()
 
-    var getter: () -> T
-      get() = backingObject["get"]
-      set(value) { backingObject["get"] = value }
+    lateinit var getter: () -> (() -> T)
+    var setter: (() -> ((T) -> Unit))? = null
 
-    var setter: (T) -> Unit
-      get() = backingObject["set"]
-      set(value) { backingObject["set"] = value }
+    fun finalize(propertyName: String): dynamic {
+      backingObject["get"] = getter()
+
+      setter?.let {
+        if(singleAssign) {
+          var assigned = false
+
+          backingObject["set"] = {
+            value: T ->
+            if(assigned)
+              throwVueKtException("The Vue computed property '$propertyName' in '${this@VueComponent::class.simpleName}' has already been assigned.")
+
+            assigned = true
+            it()(value)
+          }
+        } else {
+          backingObject["set"] = it()
+        }
+      } ?: kotlin.run {
+        backingObject["set"] = { throwVueKtException("The Vue computed property '$propertyName' in '${this@VueComponent::class.simpleName}' was not assigned a setter.") }
+      }
+      return backingObject
+    }
   }
 
   protected inner class Computed<T> {
     private val dynVueComp:dynamic = this@VueComponent
-    val computed = ComputedContainer<T>()
+    val computedContainer: ComputedContainer<T>
     val singleAssign: Boolean
     val getter: KProperty<() -> T>
     val setter: (KProperty<(T) -> Unit>)?
@@ -50,74 +69,49 @@ abstract class VueComponent {
       this.singleAssign = false
       this.getter = getter
       this.setter = null
-      initialize()
+      this.computedContainer = ComputedContainer(singleAssign)
+      initGetterAndSetter()
     }
 
     constructor(getter: KProperty<() -> T>, setter: KProperty<(T) -> Unit>) {
       this.singleAssign = false
       this.setter = setter
       this.getter = getter
-      initialize()
+      this.computedContainer = ComputedContainer(singleAssign)
+      initGetterAndSetter()
     }
 
     constructor(getter: KProperty<() -> T>, setter: KProperty<(T) -> Unit>, singleAssign: Boolean) {
       this.singleAssign = singleAssign
       this.getter = getter
       this.setter = setter
-      initialize()
+      this.computedContainer = ComputedContainer(singleAssign)
+      initGetterAndSetter()
     }
 
-    private fun initialize() {
-      if(isNotNullOrUndefined(dynVueComp[getter.name]))
-        computed.getter = dynVueComp[getter.name]
+    private fun initGetterAndSetter() {
+      computedContainer.getter = { dynVueComp[getter.name] }
 
       setter?.let {
-        if(isNotNullOrUndefined(dynVueComp[it.name]))
-          computed.setter = dynVueComp[it.name]
-      }
-      console.log("computed.getter: ", computed.getter)
-      val handler = ProxyHandler()
-      handler.set = {
-        target, property, value, receiver ->
-        if(property == getter.name)
-          computed.getter = value
-
-        setter?.let {
-          if(property == it.name)
-            computed.setter = value
+        computedContainer.setter = {
+          dynVueComp[it.name]
         }
-        console.log("handler set called")
-        target[property] = value
-        true
       }
-      console.log("getter: ",getter.name)
-      console.log("handler: ",handler)
-      console.log("component: ", this@VueComponent)
-      newProxy(this@VueComponent, handler)
-
-      val testHandler = ProxyHandler()
-      testHandler.set = {
-        target, property, value, receiver ->
-        console.log("testHandler set called")
-        target[property] = value
-        true
-      }
-      newProxy(this@VueComponent, handler)
     }
 
     operator fun getValue(thisRef: Any, propertyLocal: KProperty<*>): T {
-      if(isNullOrUndefined(computed.getter))
+      if(isNullOrUndefined(dynVueComp[getter.name]))
         throwVueKtException("The getter property '${getter.name}' for Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has not been assigned before this call to get.")
 
-      return computed.getter()
+      return dynVueComp[getter.name]()
     }
 
     operator fun setValue(thisRef: Any, propertyLocal: KProperty<*>, value: T) {
       setter?.let {
-        if(isNullOrUndefined(computed.getter))
+        if(isNullOrUndefined(dynVueComp[setter.name]))
           throwVueKtException("The setter property '${it.name}' for Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has not been assigned before this call to set.")
 
-        computed.setter(value)
+        dynVueComp[setter.name](value)
 
       } ?: throwVueKtException("The Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' was not assigned a setter.")
     }
@@ -176,8 +170,8 @@ abstract class VueComponent {
       if(isNotNullOrUndefined(delegate)) {
         if(isNotNullOrUndefined(delegate.initialValue) && !delegate.assigned)
           thisDynamic[it] = delegate.initialValue
-        else if(isNotNullOrUndefined(delegate.computed))
-          computed[it] = delegate.computed.backingObject
+        else if(isNotNullOrUndefined(delegate.computedContainer))
+          computed[it] = (delegate.computedContainer as ComputedContainer<*>).finalize(it)
       }
     }
   }
@@ -188,7 +182,6 @@ abstract class VueComponent {
     val actual = newObject()
     actual.created = {
       vueThis = js("this")
-      console.log("vueThis: ", vueThis)
       created()
     }
 
@@ -199,7 +192,6 @@ abstract class VueComponent {
       actual.data = { data.backingObject }
     }
 
-    console.log("computed: ", computed.backingObject)
     actual.computed = computed.backingObject
     actual.watch = watch.backingObject
     actual.methods = methods.backingObject
