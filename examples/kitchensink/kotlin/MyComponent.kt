@@ -24,7 +24,10 @@ class MyComponent: VueComponent(){
   val computedOutputGet: () -> String = {
     "test"
   }
-  var computedOutput: String by Computed(this::computedOutputGet)
+  val computedOutputSet: (String) -> Unit = {
+
+  }
+  var computedOutput: String by Computed(this::computedOutputGet, this::computedOutputSet, true)
 
   var watchCounter: (Int, Int) -> Unit by Watch(this::computedCounter)
 
@@ -66,13 +69,6 @@ class MyComponent: VueComponent(){
     //Testing computedContainer
     computedCounter = 0
     computedCounter2 = 0
-//    computedOutput = {
-//      console.log("computedOutput called")
-//      if(computedCounter > 5)
-//        "Greater than 5"
-//      else
-//        "Less than 5"
-//    }
     methodOutput = {
       if(computedCounter > 5)
         "Greater than 5"
