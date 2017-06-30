@@ -6,7 +6,7 @@ import io.vuekt.framework.vue.external.require
  * Created by gbaldeck on 6/22/2017.
  */
 class MyComponent: VueComponent(){
-  override val templateImport: dynamic = require("./MyComponent.html")
+  override val templateImport: dynamic = require("kitchensink/kotlin/MyComponent.html")
   override val el: String = "my-component"
 
   var google: String by Data()

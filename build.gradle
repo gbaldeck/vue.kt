@@ -4,7 +4,6 @@ version '0.1.0'
 buildscript {
     ext.kotlin_version = "1.2-M1"
     ext.kotlin_frontend_plugin = "0.0.19"
-    ext.kotlin_frontend_plugin_dev = "0.0.19"
     ext.output_filename = "vuekt"
 
     repositories {
@@ -26,18 +25,20 @@ apply plugin: 'org.jetbrains.kotlin.frontend'
 sourceSets {
     main.kotlin.srcDirs += 'src/main/kotlin'
 
-    if(project.gradle.startParameter.taskNames.contains("run")) {
-        main.kotlin.srcDirs += 'src/examples/kitchensink/kotlin'
+    if(project.gradle.startParameter.taskNames.contains("run") ||
+            project.gradle.startParameter.taskNames.contains("test")) {
+        main.kotlin.srcDirs += 'examples/mainkt'
+        main.kotlin.srcDirs += 'examples/kitchensink/kotlin'
         main.resources.srcDirs += "src/main/resources"
-        main.resources.srcDirs += "src/examples/kitchensink/resources"
+        main.resources.srcDirs += "examples/kitchensink/resources"
         main.output.resourcesDir = "build/js/resources"
     }
 
     test.kotlin.srcDirs += 'src/main/kotlin'
     test.kotlin.srcDirs += "src/test/kotlin"
-    test.kotlin.srcDirs += 'src/examples/kitchensink/kotlin'
+    test.kotlin.srcDirs += 'examples/kitchensink/kotlin'
     test.resources.srcDirs += "src/main/resources"
-    test.resources.srcDirs += "src/examples/kitchensink/resources"
+    test.resources.srcDirs += "examples/kitchensink/resources"
     test.resources.srcDirs += "src/test/resources"
 }
 
@@ -50,8 +51,8 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-//    testCompile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
 kotlinFrontend {
@@ -75,14 +76,13 @@ kotlinFrontend {
 
     webpackBundle {
         bundleName = "main"
-        contentPath = file('src/web')
+        contentPath = file('web')
         port = 9002
 //        publicPath = "/frontend/"
 //        proxyUrl = "http://localhost:9090"
     }
 
     karma {
-        customConfigFile = "karma.conf.js"
         port = 9876
         runnerPort = 9100
         reporters = ["progress"]
@@ -95,6 +95,11 @@ compileKotlin2Js {
     kotlinOptions.metaInfo = true
     kotlinOptions.outputFile = "${projectDir}/build/js/${output_filename}.js"
 //    kotlinOptions.sourceMap = true
+    kotlinOptions.moduleKind = 'commonjs'
+}
+
+compileTestKotlin2Js {
+    kotlinOptions.metaInfo = true
     kotlinOptions.moduleKind = 'commonjs'
 }
 
@@ -135,7 +140,7 @@ task copyToDist(type: Copy){
 }
 
 task copyHtml(type: Copy){
-    from('src/test/kotlin'){
+    from('examples/'){
         include "**/*.html"
     }
     into "build/js"
