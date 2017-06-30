@@ -82,16 +82,11 @@ kotlinFrontend {
     }
 
     karma {
+        customConfigFile = "karma.conf.js"
         port = 9876
         runnerPort = 9100
         reporters = ["progress"]
         frameworks = ["qunit"]
-        extraConfig = [
-                "files": [
-                    "C:\\my_workspace\\vue.kt\\build\\classes\\java\\test\\vuekt_test.js",
-                    "C:\\my_workspace\\vue.kt\\build\\js\\vuekt.js"
-                ]
-        ]
 //        preprocessors = ["'build/js/vuekt.js': ['webpack']"]
     }
 }
