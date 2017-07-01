@@ -27,40 +27,35 @@ abstract class VueComponent {
   protected inner class Data<T>(initialValue: T? = null, singleAssign: Boolean = false):
       VueOption<T>(initialValue, singleAssign, data, null)
 
-  protected inner class ComputedContainer<T>(val singleAssign: Boolean){
+  internal inner class ComputedContainer<T>(val hasSetter: Boolean){
     private val backingObject = newObject()
 
-    lateinit var getter: () -> (() -> T)
-    var setter: (() -> ((T) -> Unit))? = null
+    var getter: () -> (() -> T)
+      get() = backingObject["get"]
+      set(value) { backingObject["get"] = value }
 
-    fun finalize(propertyName: String): dynamic {
+    var setter: () -> ((T) -> Unit)
+      get() = backingObject["set"]
+      set(value) { backingObject["set"] = value }
+
+    fun finalize(): dynamic {
       backingObject["get"] = getter()
 
-      setter?.let {
-        if(singleAssign) {
-          var assigned = false
+      if(hasSetter)
+        backingObject["set"] = setter()
+      else
+        backingObject["set"] = setter
 
-          backingObject["set"] = {
-            value: T ->
-            if(assigned)
-              throwVueKtException("The Vue computed property '$propertyName' in '${this@VueComponent::class.simpleName}' has already been assigned.")
-
-            assigned = true
-            it()(value)
-          }
-        } else {
-          backingObject["set"] = it()
-        }
-      } ?: kotlin.run {
-        backingObject["set"] = { throwVueKtException("The Vue computed property '$propertyName' in '${this@VueComponent::class.simpleName}' was not assigned a setter.") }
-      }
       return backingObject
     }
   }
 
   protected inner class Computed<T> {
+    lateinit var propertyName: String //needs to be set when the operator setValue is called and when getActual is called
     private val dynVueComp:dynamic = this@VueComponent
-    val computedContainer: ComputedContainer<T>
+    @JsName("computedContainer")
+    internal val computedContainer: ComputedContainer<T>
+    private var assigned = false
     val singleAssign: Boolean
     val getter: KProperty<() -> T>
     val setter: (KProperty<(T) -> Unit>)?
@@ -69,7 +64,7 @@ abstract class VueComponent {
       this.singleAssign = false
       this.getter = getter
       this.setter = null
-      this.computedContainer = ComputedContainer(singleAssign)
+      this.computedContainer = ComputedContainer(false)
       initGetterAndSetter()
     }
 
@@ -77,7 +72,7 @@ abstract class VueComponent {
       this.singleAssign = false
       this.setter = setter
       this.getter = getter
-      this.computedContainer = ComputedContainer(singleAssign)
+      this.computedContainer = ComputedContainer(true)
       initGetterAndSetter()
     }
 
@@ -85,17 +80,30 @@ abstract class VueComponent {
       this.singleAssign = singleAssign
       this.getter = getter
       this.setter = setter
-      this.computedContainer = ComputedContainer(singleAssign)
+      this.computedContainer = ComputedContainer(true)
       initGetterAndSetter()
     }
 
     private fun initGetterAndSetter() {
       computedContainer.getter = { dynVueComp[getter.name] }
 
-      setter?.let {
-        computedContainer.setter = {
-          dynVueComp[it.name]
+      if(isNotNullOrUndefined(setter)) {
+        if(singleAssign) {
+          computedContainer.setter = {
+            {
+              value: T ->
+              if (assigned)
+                throwVueKtException("The Vue computed property '${setter!!.name}' in '${this@VueComponent::class.simpleName}' has already been assigned.")
+
+              assigned = true
+              dynVueComp[setter!!.name](value)
+            }
+          }
+        } else {
+          computedContainer.setter = { dynVueComp[setter!!.name] }
         }
+      } else {
+        computedContainer.setter = { throwVueKtException("The Vue computed property '$propertyName' in '${this@VueComponent::class.simpleName}' was not assigned a setter.") }
       }
     }
 
@@ -103,17 +111,16 @@ abstract class VueComponent {
       if(isNullOrUndefined(dynVueComp[getter.name]))
         throwVueKtException("The getter property '${getter.name}' for Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has not been assigned before this call to get.")
 
-      return dynVueComp[getter.name]()
+      return computedContainer.getter()()
     }
 
     operator fun setValue(thisRef: Any, propertyLocal: KProperty<*>, value: T) {
-      setter?.let {
-        if(isNullOrUndefined(dynVueComp[setter.name]))
-          throwVueKtException("The setter property '${it.name}' for Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has not been assigned before this call to set.")
+      propertyName = propertyLocal.name
+      if((singleAssign && isNullOrUndefined(dynVueComp[setter!!.name])) || isNullOrUndefined(computedContainer.setter()))
+        throwVueKtException("The setter property '${setter!!.name}' for Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has not been assigned before this call to set.")
 
-        dynVueComp[setter.name](value)
-
-      } ?: throwVueKtException("The Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' was not assigned a setter.")
+      computedContainer.setter()(value)
+      assigned = true
     }
   }
 
@@ -168,10 +175,13 @@ abstract class VueComponent {
       val delegate = thisDynamic["$it\$delegate"]
 
       if(isNotNullOrUndefined(delegate)) {
-        if(isNotNullOrUndefined(delegate.initialValue) && !delegate.assigned)
+        if(isNotNullOrUndefined(delegate.initialValue) && !delegate.assigned) {
           thisDynamic[it] = delegate.initialValue
-        else if(isNotNullOrUndefined(delegate.computedContainer))
-          computed[it] = (delegate.computedContainer as ComputedContainer<*>).finalize(it)
+        }
+        else if(isNotNullOrUndefined(delegate.computedContainer)) {
+          delegate.propertyName = it
+          computed[it] = (delegate.computedContainer as ComputedContainer<*>).finalize()
+        }
       }
     }
   }

@@ -25,21 +25,22 @@ apply plugin: 'org.jetbrains.kotlin.frontend'
 sourceSets {
     main.kotlin.srcDirs += 'src/main/kotlin'
 
-    if(project.gradle.startParameter.taskNames.contains("run") ||
-            project.gradle.startParameter.taskNames.contains("test")) {
-        main.kotlin.srcDirs += 'examples/mainkt'
-        main.kotlin.srcDirs += 'examples/kitchensink/kotlin'
+    if(project.gradle.startParameter.taskNames.contains("run")) {
+        main.kotlin.srcDirs += 'src/examples/mainkt'
+        main.kotlin.srcDirs += 'src/examples/kitchensink/kotlin'
         main.resources.srcDirs += "src/main/resources"
-        main.resources.srcDirs += "examples/kitchensink/resources"
+        main.resources.srcDirs += "src/examples/kitchensink/resources"
         main.output.resourcesDir = "build/js/resources"
     }
 
     test.kotlin.srcDirs += 'src/main/kotlin'
     test.kotlin.srcDirs += "src/test/kotlin"
-    test.kotlin.srcDirs += 'examples/kitchensink/kotlin'
     test.resources.srcDirs += "src/main/resources"
-    test.resources.srcDirs += "examples/kitchensink/resources"
     test.resources.srcDirs += "src/test/resources"
+    if(project.gradle.startParameter.taskNames.contains("test")) {
+        test.kotlin.srcDirs += 'src/examples/kitchensink/kotlin'
+        test.resources.srcDirs += "src/examples/kitchensink/resources"
+    }
 }
 
 repositories {
@@ -51,8 +52,8 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
+//    testCompile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
 kotlinFrontend {
@@ -76,7 +77,7 @@ kotlinFrontend {
 
     webpackBundle {
         bundleName = "main"
-        contentPath = file('web')
+        contentPath = file('src/web')
         port = 9002
 //        publicPath = "/frontend/"
 //        proxyUrl = "http://localhost:9090"
@@ -116,6 +117,7 @@ if(project.gradle.startParameter.taskNames.contains("jar")){
     compileKotlin2Js.dependsOn 'cleanJar'
 }
 compileKotlin2Js.dependsOn 'copyHtml'
+compileTestKotlin2Js.dependsOn 'copyTestHtml'
 
 task cleanJar {
     dependsOn 'cleanJs'
@@ -140,7 +142,14 @@ task copyToDist(type: Copy){
 }
 
 task copyHtml(type: Copy){
-    from('examples/'){
+    from('src/examples/'){
+        include "**/*.html"
+    }
+    into "build/js"
+}
+
+task copyTestHtml(type: Copy){
+    from('src/test/kotlin'){
         include "**/*.html"
     }
     into "build/js"
