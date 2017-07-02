@@ -27,7 +27,7 @@ class MyComponent: VueComponent(){
   val computedOutputSet: (String) -> Unit = {
 
   }
-  var computedOutput: String by Computed(this::computedOutputGet, this::computedOutputSet, true)
+  var computedOutput: String by Computed(this::computedOutputGet, this::computedOutputSet)
 
   var watchCounter: (Int, Int) -> Unit by Watch(this::computedCounter)
 

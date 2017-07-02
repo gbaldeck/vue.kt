@@ -9,31 +9,6 @@ import kotlin.test.assertEquals
 
 class VueComponentComputedTests {
   @Test
-  fun vueComponentInstanceShouldThrowSingleAssignError(){
-    val vuektcomponent = VueComponentMockComputed1()
-    val actual = vuektcomponent.getActual()
-    val constructor = VueObj.extend(actual)
-    val component = js("new constructor().\$mount()")
-
-    try {
-      component.testComputed = "test2"
-    } catch (e: Exception) {
-      console.log(e.message)
-      assertEquals(e.message!!.contains("has already been assigned"), true)
-    }
-  }
-
-  @Test
-  fun componentShouldThrowSingleAssignError(){
-    try {
-      val vuektcomponent = VueComponentMockComputed2()
-    } catch (e: Exception) {
-      console.log(e.message)
-      assertEquals(e.message!!.contains("has already been assigned"), true)
-    }
-  }
-
-  @Test
   fun vueComponentInstanceShouldThrowNoAssignedSetterError(){
 
     val vuektcomponent = VueComponentMockComputed3()

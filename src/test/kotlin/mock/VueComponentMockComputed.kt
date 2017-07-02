@@ -6,51 +6,6 @@ import io.vuekt.framework.vue.external.require
 /**
  * Created by gbaldeck on 7/1/2017.
  */
-//vueComponentInstanceShouldThrowSingleAssignError()
-class VueComponentMockComputed1 : VueComponent(){
-  override val templateImport: dynamic = require("mock/VueComponentMockComputed.html")
-  override val el: String = "vue-component-mock1"
-
-  var test by Data("test")
-  var testComputed by Computed(this::testComputedGet, this::testComputedSet, true)
-
-  val testComputedGet = {
-    test
-  }
-
-  val testComputedSet = {
-    value: String ->
-    test = value
-  }
-
-  init {
-    testComputed = "testComputed"
-  }
-}
-
-
-//componentShouldThrowSingleAssignError()
-class VueComponentMockComputed2 : VueComponent(){
-  override val templateImport: dynamic = require("mock/VueComponentMockComputed.html")
-  override val el: String = "vue-component-mock2"
-
-  var test by Data("test")
-  var testComputed by Computed(this::testComputedGet, this::testComputedSet, true)
-
-  val testComputedGet = {
-    test
-  }
-
-  val testComputedSet = {
-    value: String ->
-    test = value
-  }
-
-  init {
-    testComputed = "testComputed"
-    testComputed = "testComputed2"
-  }
-}
 
 //vueComponentInstanceShouldThrowNoAssignedSetterError()
 class VueComponentMockComputed3 : VueComponent(){
@@ -88,7 +43,7 @@ class VueComponentMockComputed5 : VueComponent(){
   override val el: String = "vue-component-mock5"
 
   var test by Data("test")
-  var testComputed by Computed(this::testComputedGet, this::testComputedSet, true)
+  var testComputed by Computed(this::testComputedGet, this::testComputedSet)
 
   val testComputedGet = {
     test

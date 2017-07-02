@@ -47,58 +47,17 @@ abstract class VueComponent {
     }
   }
 
-  protected inner class Computed<T> {
+  protected inner class Computed<T>(val getter: KProperty<() -> T>, val setter: (KProperty<(T) -> Unit>)? = null) {
     lateinit var propertyName: String //needs to be set when the operator setValue is called and when getActual is called
     private val dynVueComp:dynamic = this@VueComponent
     @JsName("computedContainer")
-    internal val computedContainer: ComputedContainer<T>
-    private var assigned = false
-    val singleAssign: Boolean
-    val getter: KProperty<() -> T>
-    val setter: (KProperty<(T) -> Unit>)?
+    internal val computedContainer: ComputedContainer<T> = ComputedContainer(isNotNullOrUndefined(setter))
 
-    constructor(getter: KProperty<() -> T>) {
-      this.singleAssign = false
-      this.getter = getter
-      this.setter = null
-      this.computedContainer = ComputedContainer(false)
-      initGetterAndSetter()
-    }
-
-    constructor(getter: KProperty<() -> T>, setter: KProperty<(T) -> Unit>) {
-      this.singleAssign = false
-      this.setter = setter
-      this.getter = getter
-      this.computedContainer = ComputedContainer(true)
-      initGetterAndSetter()
-    }
-
-    constructor(getter: KProperty<() -> T>, setter: KProperty<(T) -> Unit>, singleAssign: Boolean) {
-      this.singleAssign = singleAssign
-      this.getter = getter
-      this.setter = setter
-      this.computedContainer = ComputedContainer(true)
-      initGetterAndSetter()
-    }
-
-    private fun initGetterAndSetter() {
+    init {
       computedContainer.getter = { dynVueComp[getter.name] }
 
       if(isNotNullOrUndefined(setter)) {
-        if(singleAssign) {
-          computedContainer.setter = {
-            {
-              value: T ->
-              if (assigned)
-                throwVueKtException("The Vue computed property '${setter!!.name}' in '${this@VueComponent::class.simpleName}' has already been assigned.")
-
-              assigned = true
-              dynVueComp[setter!!.name](value)
-            }
-          }
-        } else {
           computedContainer.setter = { dynVueComp[setter!!.name] }
-        }
       } else {
         computedContainer.setter = { throwVueKtException("The Vue computed property '$propertyName' in '${this@VueComponent::class.simpleName}' was not assigned a setter.") }
       }
@@ -113,27 +72,24 @@ abstract class VueComponent {
 
     operator fun setValue(thisRef: Any, propertyLocal: KProperty<*>, value: T) {
       propertyName = propertyLocal.name
-      if((singleAssign && isNullOrUndefined(dynVueComp[setter!!.name])) || isNullOrUndefined(computedContainer.setter()))
+      if(isNullOrUndefined(computedContainer.setter()))
         throwVueKtException("The setter property '${setter!!.name}' for Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has not been assigned before this call to set.")
 
       computedContainer.setter()(value)
-      assigned = true
     }
   }
 
-  protected inner class Data<T>(initialValue: T? = null, singleAssign: Boolean = false):
-      VueOption<T>(initialValue, singleAssign, data, null)
+  protected inner class Data<T>(initialValue: T? = null): VueOption<T>(initialValue, data, null)
 
-  protected inner class Watch<T: (V, V) -> Unit, V>(property: KProperty<V>, singleAssign: Boolean = false):
-      VueOption<T>(null, singleAssign, watch as VueCollection<String, T>, property)
+  protected inner class Watch<T: (V, V) -> Unit, V>(property: KProperty<V>):
+      VueOption<T>(null, watch as VueCollection<String, T>, property)
 
-  protected inner class Method<T: Function<*>>(initialValue: T? = null, singleAssign: Boolean = false):
-      VueOption<T>(initialValue, singleAssign, methods as VueCollection<String, T>, null)
+  protected inner class Method<T: Function<*>>(initialValue: T? = null):
+      VueOption<T>(initialValue,methods as VueCollection<String, T>, null)
 
 
 
   protected open inner class VueOption<V>(val initialValue: V?,
-                                          val singleAssign: Boolean,
                                           val storageObj: VueCollection<String, V>,
                                           val property: KProperty<*>?) {
     var assigned = false
@@ -155,9 +111,6 @@ abstract class VueComponent {
     }
 
     open operator fun setValue(thisRef: Any, propertyLocal: KProperty<*>, value: V) {
-      if((assigned || isNotNullOrUndefined(initialValue)) && singleAssign)
-        throwVueKtException("The Vue ${this::class.simpleName?.toLowerCase() ?: ""} property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has already been assigned.")
-
       val propName = property?.name ?: propertyLocal.name
       if(vueThis !== undefined)
         vueThis[propName] = value
@@ -168,7 +121,7 @@ abstract class VueComponent {
     }
   }
 
-  private fun setDelegateInitialValues() {
+  private fun finalizeDelegates() {
     val thisDynamic: dynamic = this
 
     (Object.getOwnPropertyNames(thisDynamic.__proto__) as Array<String>).forEach {
@@ -187,7 +140,7 @@ abstract class VueComponent {
   }
 
   open internal fun getActual(): dynamic{
-    setDelegateInitialValues()
+    finalizeDelegates()
 
     val actual = newObject()
     actual.created = {

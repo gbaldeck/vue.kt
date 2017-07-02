@@ -26,7 +26,17 @@ class VueComponentDataTests {
   }
 
   @Test
-  fun componentReassignInitialValue(){
+  fun vueComponentReassignInitialValue() {
+    val vuektcomponent = VueComponentMockData2()
+    val actual = vuektcomponent.getActual()
+    val constructor = VueObj.extend(actual)
+    val component = js("new constructor().\$mount()")
+
+    assertEquals(component.test, "test2")
+  }
+
+  @Test
+  fun componentReassignInitialValue() {
     val vuektcomponent = VueComponentMockData2()
 
     assertEquals(vuektcomponent.test, "test2")
