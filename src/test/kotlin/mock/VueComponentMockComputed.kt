@@ -121,3 +121,35 @@ class VueComponentMockComputed6 : VueComponent(){
     }
   }
 }
+
+class VueComponentMockComputed7 : VueComponent(){
+  override val templateImport: dynamic = require("mock/VueComponentMockComputed.html")
+  override val el: String = "vue-component-mock7"
+
+  var test by Data("test")
+  var testComputed by Computed(this::testComputedGet)
+
+  val testComputedGet: () -> String
+
+  init {
+    testComputedGet = {
+      test
+    }
+  }
+}
+
+class VueComponentMockComputed8 : VueComponent(){
+  override val templateImport: dynamic = require("mock/VueComponentMockComputed.html")
+  override val el: String = "vue-component-mock8"
+
+  var test by Data("test")
+  var testComputed by Computed(this::testComputedGet)
+
+  val testComputedGet: () -> String
+
+  init {
+    testComputedGet = {
+      test
+    }
+  }
+}

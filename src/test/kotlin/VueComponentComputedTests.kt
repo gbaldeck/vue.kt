@@ -78,4 +78,20 @@ class VueComponentComputedTests {
       assertEquals(e.message!!.contains("has not been assigned before this call to get"), true)
     }
   }
+
+  @Test
+  fun vueComponentInstanceTestComputedShouldEqualTest(){
+    val vuektcomponent = VueComponentMockComputed7()
+    val actual = vuektcomponent.getActual()
+    val constructor = VueObj.extend(actual)
+    val component = js("new constructor().\$mount()")
+
+    assertEquals(component.testComputed, "test")
+  }
+
+  @Test
+  fun componentTestComputedShouldEqualTest(){
+    val vuektcomponent = VueComponentMockComputed8()
+    assertEquals(vuektcomponent.testComputed, "test")
+  }
 }

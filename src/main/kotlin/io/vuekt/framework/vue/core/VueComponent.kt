@@ -24,9 +24,6 @@ abstract class VueComponent {
 
   open fun created() {}
 
-  protected inner class Data<T>(initialValue: T? = null, singleAssign: Boolean = false):
-      VueOption<T>(initialValue, singleAssign, data, null)
-
   internal inner class ComputedContainer<T>(val hasSetter: Boolean){
     private val backingObject = newObject()
 
@@ -123,6 +120,9 @@ abstract class VueComponent {
       assigned = true
     }
   }
+
+  protected inner class Data<T>(initialValue: T? = null, singleAssign: Boolean = false):
+      VueOption<T>(initialValue, singleAssign, data, null)
 
   protected inner class Watch<T: (V, V) -> Unit, V>(property: KProperty<V>, singleAssign: Boolean = false):
       VueOption<T>(null, singleAssign, watch as VueCollection<String, T>, property)
