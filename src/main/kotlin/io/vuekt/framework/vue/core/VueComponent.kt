@@ -128,6 +128,7 @@ abstract class VueComponent {
       val delegate = thisDynamic["$it\$delegate"]
 
       if(isNotNullOrUndefined(delegate)) {
+        //add code to check if the value was ever assigned
         if(isNotNullOrUndefined(delegate.initialValue) && !delegate.assigned) {
           thisDynamic[it] = delegate.initialValue
         }
