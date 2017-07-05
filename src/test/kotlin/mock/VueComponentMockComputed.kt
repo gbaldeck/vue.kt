@@ -108,3 +108,30 @@ class VueComponentMockComputed8 : VueComponent(){
     }
   }
 }
+
+class VueComponentMockComputedDataMethod : VueComponent(){
+  override val templateImport: dynamic = require("mock/VueComponentMockComputed.html")
+  override val el: String = "vue-component-mock-cdm"
+
+  var counter by Data(0)
+//  var computedResult by Computed(this::testComputedGet, this::testComputedSet)
+
+  var methodResult: () -> String by Method()
+//  val testComputedGet: () -> String
+//  val testComputedSet: (String) -> Unit
+
+  init {
+//    methodResult = {
+//      if
+//      console.log()
+//    }
+//    testComputedGet = {
+//      console.log("Computed GET called")
+//      test
+//    }
+//    testComputedSet = {
+//      console.log("Computed SET called")
+//      test = it
+//    }
+  }
+}

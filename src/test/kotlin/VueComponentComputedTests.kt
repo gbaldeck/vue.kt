@@ -19,7 +19,6 @@ class VueComponentComputedTests {
     try {
       component.testComputed = "test2"
     } catch (e: Exception) {
-      console.log(e.message)
       assertEquals(e.message!!.contains("was not assigned a setter"), true)
     }
   }
@@ -29,7 +28,6 @@ class VueComponentComputedTests {
     try {
       val vuektcomponent = VueComponentMockComputed4()
     } catch (e: Exception) {
-      console.log(e.message)
       assertEquals(e.message!!.contains("was not assigned a setter"), true)
     }
   }
@@ -39,7 +37,6 @@ class VueComponentComputedTests {
     try {
       val vuektcomponent = VueComponentMockComputed5()
     } catch (e: Exception) {
-      console.log(e.message)
       assertEquals(e.message!!.contains("has not been assigned before this call to set"), true)
     }
   }
@@ -49,7 +46,6 @@ class VueComponentComputedTests {
     try {
       val vuektcomponent = VueComponentMockComputed6()
     } catch (e: Exception) {
-      console.log(e.message)
       assertEquals(e.message!!.contains("has not been assigned before this call to get"), true)
     }
   }

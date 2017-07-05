@@ -12,7 +12,6 @@ class VueApp: Vue(){
   var myData: String by Data()
 
   init {
-//    console.log(myComponent)
     myComponent= MyComponent()
   }
 

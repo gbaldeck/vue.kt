@@ -1,4 +1,5 @@
 @file:Suppress("UNCHECKED_CAST")
+
 package io.vuekt.framework.vue.core
 
 import io.vuekt.framework.vue.common.*
@@ -13,10 +14,6 @@ typealias VueData = VueCollection<String, dynamic>
 abstract class VueComponent {
   abstract val templateImport: dynamic
   abstract val el: String
-  private val data = VueData()
-  private val computed = VueCollection<String, ComputedContainer<*>>()
-  private val watch = VueCollection<String, Function<Unit>>()
-  private val methods = VueCollection<String, Function<*>>()
   protected open var dataFunction: Function<VueData>? = null
 
   var vueThis: dynamic = undefined
@@ -24,141 +21,121 @@ abstract class VueComponent {
 
   open fun created() {}
 
-  internal inner class ComputedContainer<T>(val hasSetter: Boolean){
-    private val backingObject = newObject()
-
-    var getter: () -> (() -> T)
-      get() = backingObject["get"]
-      set(value) { backingObject["get"] = value }
-
-    var setter: () -> ((T) -> Unit)
-      get() = backingObject["set"]
-      set(value) { backingObject["set"] = value }
-
-    fun finalize(): dynamic {
-      backingObject["get"] = getter()
-
-      if(hasSetter)
-        backingObject["set"] = setter()
-      else
-        backingObject["set"] = setter
-
-      return backingObject
-    }
-  }
-
   protected inner class Computed<T>(val getter: KProperty<() -> T>, val setter: (KProperty<(T) -> Unit>)? = null) {
-    lateinit var propertyName: String //needs to be set when the operator setValue is called and when getActual is called
-    private val dynVueComp:dynamic = this@VueComponent
-    @JsName("computedContainer")
-    internal val computedContainer: ComputedContainer<T> = ComputedContainer(isNotNullOrUndefined(setter))
+    private val dynVueComp: dynamic = this@VueComponent
 
-    init {
-      computedContainer.getter = { dynVueComp[getter.name] }
-
-      if(isNotNullOrUndefined(setter)) {
-          computedContainer.setter = { dynVueComp[setter!!.name] }
-      } else {
-        computedContainer.setter = { throwVueKtException("The Vue computed property '$propertyName' in '${this@VueComponent::class.simpleName}' was not assigned a setter.") }
-      }
-    }
-
+    @JsName("getValue")
     operator fun getValue(thisRef: Any, propertyLocal: KProperty<*>): T {
-      if(isNullOrUndefined(dynVueComp[getter.name]))
+      if (isNullOrUndefined(dynVueComp[getter.name]))
         throwVueKtException("The getter property '${getter.name}' for Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has not been assigned before this call to get.")
 
-      return computedContainer.getter()()
+      return dynVueComp[getter.name]()
     }
 
+    @JsName("setValue")
     operator fun setValue(thisRef: Any, propertyLocal: KProperty<*>, value: T) {
-      propertyName = propertyLocal.name
-      if(isNullOrUndefined(computedContainer.setter()))
+      if (isNullOrUndefined(setter))
+        throwVueKtException("The Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' was not assigned a setter function.")
+      else if (isNullOrUndefined(dynVueComp[setter!!.name]))
         throwVueKtException("The setter property '${setter!!.name}' for Vue computed property '${propertyLocal.name}' in '${thisRef::class.simpleName}' has not been assigned before this call to set.")
 
-      computedContainer.setter()(value)
+      dynVueComp[setter.name](value)
     }
   }
 
-  protected inner class Data<T>(initialValue: T? = null): VueOption<T>(initialValue, data, null)
+  protected inner class Data<T>(initialValue: T? = null) : VueOption<T>(initialValue, null)
 
-  protected inner class Watch<T: (V, V) -> Unit, V>(property: KProperty<V>):
-      VueOption<T>(null, watch as VueCollection<String, T>, property)
+  protected inner class Watch<T : (V, V) -> Unit, V>(property: KProperty<V>, initialValue: T? = null) :
+      VueOption<T>(initialValue, property)
 
-  protected inner class Method<T: Function<*>>(initialValue: T? = null):
-      VueOption<T>(initialValue,methods as VueCollection<String, T>, null)
+  protected inner class Method<T : Function<*>>(initialValue: T? = null) :
+      VueOption<T>(initialValue, null)
 
 
-
-  protected open inner class VueOption<V>(val initialValue: V?,
-                                          val storageObj: VueCollection<String, V>,
-                                          val property: KProperty<*>?) {
+  protected open inner class VueOption<V>(var value: V?, val property: KProperty<*>?) {
     var assigned = false
       private set
 
+    @JsName("getValue")
     open operator fun getValue(thisRef: Any, propertyLocal: KProperty<*>): V {
-      if(!assigned) {
-        if(isNotNullOrUndefined(initialValue))
-          return initialValue!!
-        else
-          throwVueKtException("The Vue ${this::class.simpleName?.toLowerCase() ?: ""} property '${propertyLocal.name}' in '${thisRef::class.simpleName}' was never assigned a value.")
-      }
-
-      val propName = property?.name ?: propertyLocal.name
-      if(vueThis !== undefined)
-        return vueThis[propName]
+      if (isNotNullOrUndefined(value))
+        return value!!
       else
-        return storageObj[propName]
+        throwVueKtException("The Vue ${this::class.simpleName?.toLowerCase() ?: ""} property '${propertyLocal.name}' in '${thisRef::class.simpleName}' was never assigned a value.")
     }
 
+    @JsName("setValue")
     open operator fun setValue(thisRef: Any, propertyLocal: KProperty<*>, value: V) {
-      val propName = property?.name ?: propertyLocal.name
-      if(vueThis !== undefined)
-        vueThis[propName] = value
-      else
-        storageObj[propName] = value
-
-      assigned = true
+      this.value = value
     }
   }
 
-  private fun finalizeDelegates() {
+  private fun finalizeDelegates(): dynamic {
+    val actual: dynamic = Any()
     val thisDynamic: dynamic = this
+    val dataObj: dynamic = Any()
+    actual.data = { dataObj }
+    actual.computed = Any()
+    actual.watch = Any()
+    actual.methods = Any()
 
     (Object.getOwnPropertyNames(thisDynamic.__proto__) as Array<String>).forEach {
-      val delegate = thisDynamic["$it\$delegate"]
+      name ->
+      val delegate = thisDynamic["$name\$delegate"]
 
-      if(isNotNullOrUndefined(delegate)) {
-        //add code to check if the value was ever assigned
-        if(isNotNullOrUndefined(delegate.initialValue) && !delegate.assigned) {
-          thisDynamic[it] = delegate.initialValue
-        }
-        else if(isNotNullOrUndefined(delegate.computedContainer)) {
-          delegate.propertyName = it
-          computed[it] = (delegate.computedContainer as ComputedContainer<*>).finalize()
+      if (isNotNullOrUndefined(delegate)) {
+        val metadata = js("new Kotlin.PropertyMetadata(name)")
+        //Check to see that the delegate was assigned a value, it will throw errors if it wasn't
+        console.log(delegate)
+        delegate.getValue(this, metadata)
+
+        val objConfig = jsObjectOf(
+            "get" to { delegate.getValue(this, metadata) },
+            "set" to {
+              value: dynamic ->
+              delegate.setValue(this, metadata, value)
+            },
+            "enumerable" to true,
+            "configurable" to true
+        )
+
+        when (delegate) {
+          is Computed<*> -> {
+            actual.computed[name] = jsObjectOf(
+                "get" to { delegate.getValue(this, metadata) },
+                "set" to {
+                  value: dynamic ->
+                  delegate.setValue(this, metadata, value)
+                }
+            )
+          }
+          is Data<*> -> {
+            Object.defineProperty(dataObj, name, objConfig)
+          }
+          is Watch<*, *> -> {
+            Object.defineProperty(actual.watch, delegate.property!!.name, objConfig)
+          }
+          is Method<*> -> {
+            Object.defineProperty(actual.methods, name, objConfig)
+          }
         }
       }
     }
+    return actual
   }
 
-  open internal fun getActual(): dynamic{
-    finalizeDelegates()
+  open internal fun getActual(): dynamic {
+    val actual = finalizeDelegates()
 
-    val actual = newObject()
     actual.created = {
       vueThis = js("this")
       created()
     }
 
     dataFunction?.let {
-      val dynamicIt: dynamic = it
-      actual.data = { (dynamicIt() as VueData).backingObject }
-    } ?: run {
-      actual.data = { data.backingObject }
+      actual.data = it
     }
 
-    actual.computed = computed.backingObject
-    actual.watch = watch.backingObject
-    actual.methods = methods.backingObject
     templateImport(actual)
 
     return actual

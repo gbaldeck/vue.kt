@@ -27,3 +27,14 @@ class VueComponentMockData2 : VueComponent(){
     test = "test2"
   }
 }
+
+class VueComponentMockData3 : VueComponent(){
+  override val templateImport: dynamic = require("mock/VueComponentMockData.html")
+  override val el: String = "vue-data-mock3"
+
+  val test: String by Data("test")
+
+  init {
+    val test2 = test
+  }
+}
