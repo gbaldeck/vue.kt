@@ -22,12 +22,14 @@ class MyComponent: VueComponent(){
   var methodOutput: () -> String by Method()
 
   val computedOutputGet: () -> String = {
-    "test"
+    console.log("computed")
+    if(computedCounter > 5)
+      "Greater than 5"
+    else
+      "Less than 5"
   }
-  val computedOutputSet: (String) -> Unit = {
 
-  }
-  var computedOutput: String by Computed(this::computedOutputGet, this::computedOutputSet)
+  var computedOutput: String by Computed(this::computedOutputGet)
 
   var watchCounter: (Int, Int) -> Unit by Watch(this::computedCounter)
 
@@ -39,8 +41,6 @@ class MyComponent: VueComponent(){
   var functionName: () -> String by Method()
 
   init {
-    console.log(computedOutput)
-    computedOutput = "test"
     counter = 0
     hello = "hello"
     google = "https://www.google.com/"
@@ -70,6 +70,7 @@ class MyComponent: VueComponent(){
     computedCounter = 0
     computedCounter2 = 0
     methodOutput = {
+      console.log("method")
       if(computedCounter > 5)
         "Greater than 5"
       else

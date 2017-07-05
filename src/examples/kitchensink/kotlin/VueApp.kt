@@ -9,7 +9,6 @@ class VueApp: Vue(){
   override val el: String = "#app"
 
   var myComponent: MyComponent by Component()
-  var myData: String by Data()
 
   init {
     myComponent= MyComponent()
