@@ -37,4 +37,6 @@ npm run build
 npm run build --report
 ```
 
+Note that vue-template-compiler-loader in package.json require both vue-template-compiler and vue-template-es2015-compiler.
+
 
