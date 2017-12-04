@@ -8,10 +8,10 @@ private external val _Vue: dynamic
 val Vue: VueInstance = _Vue.default
 
 external interface VueInstance{
-  fun <D, M, C, W> component(tagName: String, component: VueComponent<D, M, C, W>)
+  fun <D, M, C, W, R> component(tagName: String, component: VueComponent<D, M, C, W, R>)
 }
 
-interface VueComponent<D, M, C, W>{
+interface VueComponent<D, M, C, W, R>{
   var render: dynamic
   var staticRenderFns: dynamic
 
@@ -20,59 +20,72 @@ interface VueComponent<D, M, C, W>{
   var computed: C?
   var watch: W?
 
-
-  val self
-    get() = this
+  var beforeCreate: Function<Unit>?
+  var created: Function<Unit>?
+  var beforeMount: Function<Unit>?
+  var mounted: Function<Unit>?
+  var beforeUpdate: Function<Unit>?
+  var updated: Function<Unit>?
+  var activated: Function<Unit>?
+  var deactivated: Function<Unit>?
+  var beforeDestroy: Function<Unit>?
+  var destroyed: Function<Unit>?
+  var errorCaptured: ((dynamic, VueComponent<*,*,*,*,*>, String) -> Boolean?)?
 }
 
-inline fun <D, M, C, W> VueComponent<D, M, C, W>.initData(config: D.() -> Unit){
+inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initData(config: D.() -> Unit){
   val tempData = createJsObject<D>()
   tempData.config()
   data = { tempData }
 }
 
-inline fun <D, M, C, W> VueComponent<D, M, C, W>.initMethods(config: M.() -> Unit){
+inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initMethods(config: M.() -> Unit){
   if(isNullOrUndefined(methods))
     methods = createJsObject()
 
   methods!!.config()
 }
 
-inline fun <D, M, C, W> VueComponent<D, M, C, W>.initComputed(config: C.() -> Unit){
+inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initComputed(config: C.() -> Unit){
   if(isNullOrUndefined(computed))
     computed = createJsObject()
 
   computed!!.config()
 }
 
-inline fun <D, M, C, W> VueComponent<D, M, C, W>.initWatch(config: W.() -> Unit){
+inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initWatch(config: W.() -> Unit){
   if(isNullOrUndefined(watch))
     watch = createJsObject()
 
   watch!!.config()
 }
 
-inline val <D, M, C, W> VueComponent<D, M, C, W>.vData: D
+inline val <D, M, C, W, R> VueComponent<D, M, C, W, R>.vData: D
   get() {
     return js("this")
   }
 
-inline val <D, M, C, W> VueComponent<D, M, C, W>.vMethods: M
+inline val <D, M, C, W, R> VueComponent<D, M, C, W, R>.vMethods: M
   get() {
     return js("this")
   }
 
-inline val <D, M, C, W> VueComponent<D, M, C, W>.vComputed: C
+inline val <D, M, C, W, R> VueComponent<D, M, C, W, R>.vComputed: C
   get() {
     return js("this")
   }
 
-inline val <D, M, C, W> VueComponent<D, M, C, W>.vWatch: W
+inline val <D, M, C, W, R> VueComponent<D, M, C, W, R>.vWatch: W
   get() {
     return js("this")
   }
 
-fun <T: VueComponent<*, *, *, *>> createVueComponent(tagName: String, template: dynamic, config: T.() -> Unit): T{
+inline val <D, M, C, W, R> VueComponent<D, M, C, W, R>.vRefs: R
+  get() {
+    return js("this.\$refs")
+  }
+
+fun <T: VueComponent<*, *, *, *, *>> createVueComponent(tagName: String, template: dynamic, config: T.() -> Unit): T{
   val component = createJsObject<T>()
   component.config()
   component.render = template.render

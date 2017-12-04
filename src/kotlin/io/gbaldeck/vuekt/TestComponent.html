@@ -29,6 +29,27 @@
   <button @click="show = !show">Switch</button>
   <hr>
   <ul>
-    <li v-for="ingredient in ingredients">{{ ingredient }}</li>
+    <li v-for="(ingredient, i) in ingredients" :key="ingredient">{{ ingredient }} ({{i}})</li>
   </ul>
+  <hr>
+    <ul>
+      <li v-for="person in persons">
+        <!--Looping through the properties of an object-->
+        <div v-for="(value, key, index) in person">{{key}}: {{value}} ({{index}})</div>
+      </li>
+    </ul>
+  <hr>
+  <template v-for="(ingredient, index) in ingredients">
+    <h1>{{ingredient}}</h1>
+    <p>{{index}}</p>
+  </template>
+  <hr>
+  <span v-for="n in 10">{{n}}</span>
+  <hr>
+  <button @click="showAndChangeText" ref="myButton">Show Paragraph</button>
+  <p v-if="showParagraph">This is not always visible</p>
+  <hr>
+  <h1>{{ title }}</h1>
+  <button @click="title - 'Changed'">Update Title</button>
+  <button @click="destroy">Destroy</button>
 </div>

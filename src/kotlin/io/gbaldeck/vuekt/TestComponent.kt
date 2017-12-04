@@ -1,12 +1,11 @@
 package io.gbaldeck.vuekt
 
 import io.gbaldeck.vuekt.external.*
+import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.MouseEvent
 
-interface Person{
-
-}
+class Person(var name: String, var age: String)
 
 interface TestData{
   var hello: String
@@ -19,6 +18,9 @@ interface TestData{
   var attachRed: Boolean
   var show: Boolean
   var ingredients: Array<String>
+  var persons: Array<Person>
+  var showParagraph: Boolean
+  var title: String
 }
 
 interface TestMethods{
@@ -27,6 +29,8 @@ interface TestMethods{
   var updateCoordinates: (e: MouseEvent) -> Unit
   var alertMe: () -> Unit
   var result: () -> String
+  var showAndChangeText: () -> Unit
+  var destroy: () -> Unit
 }
 
 interface TestComputed {
@@ -39,10 +43,14 @@ interface TestWatch {
   var counter2: (Int) -> Unit
 }
 
-interface TestComponent: VueComponent<TestData, TestMethods, TestComputed, TestWatch>
+interface TestRefs {
+  val myButton: HTMLButtonElement
+}
+
+interface TestComponent: VueComponent<TestData, TestMethods, TestComputed, TestWatch, TestRefs>
 
 val initTestComponent = {
-  createVueComponent<TestComponent>("test-component", io.gbaldeck.vuekt.external.require("KotlinSrc/TestComponent.html")) {
+  createVueComponent<TestComponent>("test-component", require("KotlinSrc/TestComponent.html")) {
     initData {
       hello = "Hello!"
       link = "http://www.google.com"
@@ -54,6 +62,9 @@ val initTestComponent = {
       attachRed = false
       show = true
       ingredients = arrayOf("meat", "vegetables", "salt")
+      persons = arrayOf(Person("sally","34"), Person("George", "23"))
+      showParagraph = false
+      title = "Title"
     }
 
     initMethods {
@@ -77,6 +88,15 @@ val initTestComponent = {
           "Greater than 5"
         else
           "Smaller than 5"
+      }
+
+      showAndChangeText = {
+        vData.showParagraph = !vData.showParagraph
+        vRefs.myButton.innerText = "Test"
+      }
+
+      destroy = {
+        js("this.\$destroy()")
       }
     }
 
@@ -104,5 +124,38 @@ val initTestComponent = {
         console.log("This was run!")
       }
     }
+
+    beforeCreate = {
+      println("beforeCreate()")
+    }
+
+    created = {
+      println("beforeCreate()")
+    }
+
+    beforeMount = {
+      println("beforeMount()")
+    }
+
+    mounted = {
+      println("mounted()")
+    }
+
+    beforeUpdate = {
+      println("beforeUpdate()")
+    }
+
+    updated = {
+      println("updated()")
+    }
+
+    beforeDestroy = {
+      println("beforeDestroy()")
+    }
+
+    destroyed = {
+      println("destroyed()")
+    }
+
   }
 }
