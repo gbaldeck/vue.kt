@@ -2,7 +2,7 @@
 
 This is a starter for using Vue and Kotlin in a PWA. It's based on the Vue pwa starter that you can generate with the Vue CLI. 
 
-##Structure
+## Structure
 
 There is a shell that is loaded first (App.vue) then the rest of the app (src/kotlin) is pre-loaded and cached after that. The Kotlin DCE is being used to shrink the bundle size and eliminate dead code.
 
