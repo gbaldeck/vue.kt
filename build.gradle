@@ -1,156 +1,59 @@
-group 'vuekt'
-version '0.1.0'
+group 'io.gbaldeck.vuekt'
+version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = "1.2-M1"
-    ext.kotlin_frontend_plugin = "0.0.19"
-    ext.output_filename = "vuekt"
+    ext.kotlin_version = '1.2.0'
 
     repositories {
-        maven { url = 'https://dl.bintray.com/kotlin/kotlin-eap-1.2' }
-        maven { url = 'https://dl.bintray.com/kotlin/kotlin-eap' }
         mavenCentral()
-        jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-//        classpath "org.jetbrains.kotlin:kotlin-frontend-plugin:$kotlin_frontend_plugin"
-        classpath files("C:\\my_workspace\\kotlin-frontend-plugin\\kotlin-frontend\\build\\libs\\kotlin-frontend-0.0.20-SNAPSHOT.jar")
+//        classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
     }
 }
 
 apply plugin: 'kotlin2js'
-apply plugin: 'org.jetbrains.kotlin.frontend'
+apply plugin: 'kotlin-dce-js'
+//apply plugin: 'com.moowork.node'
 
-sourceSets {
-    main.kotlin.srcDirs += 'src/main/kotlin'
-
-    if(project.gradle.startParameter.taskNames.contains("run")) {
-        main.kotlin.srcDirs += 'src/examples/mainkt'
-        main.kotlin.srcDirs += 'src/examples/kitchensink/kotlin'
-        main.resources.srcDirs += "src/main/resources"
-        main.resources.srcDirs += "src/examples/kitchensink/resources"
-        main.output.resourcesDir = "build/js/resources"
-    }
-
-    test.kotlin.srcDirs += 'src/main/kotlin'
-    test.kotlin.srcDirs += "src/test/kotlin"
-    test.resources.srcDirs += "src/main/resources"
-    test.resources.srcDirs += "src/test/resources"
-    if(project.gradle.startParameter.taskNames.contains("test")) {
-        test.kotlin.srcDirs += 'src/examples/kitchensink/kotlin'
-        test.resources.srcDirs += "src/examples/kitchensink/resources"
-    }
-}
+//node {
+//    download = true
+//}
 
 repositories {
-    maven { url = 'https://dl.bintray.com/kotlin/kotlin-eap-1.2' }
-    maven { url = 'https://dl.bintray.com/kotlin/kotlin-eap' }
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-//    testCompile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
-kotlinFrontend {
-//    sourceMaps = true
-    npm {
-        dependency("vue", "2.3.4")
-
-        devDependency("vue-template-compiler", "2.3.4")
-        devDependency("vue-template-es2015-compiler", "1.5.2")
-        devDependency("vue-template-loader", "0.3.1") //this requires the above 2 devDependencies
-
-        devDependency("webpack", "2.6.1")
-        devDependency("webpack-dev-server", "2.4.4")
-        devDependency("css-loader", "0.28.4")
-        devDependency("style-loader", "0.18.2")
-        devDependency("to-string-loader", "1.1.5")
-        devDependency("file-loader", "0.11.2")
-
-        devDependency("karma")
+sourceSets {
+  main {
+    kotlin {
+      srcDirs += 'src/kotlin'
     }
-
-    webpackBundle {
-        bundleName = "main"
-        contentPath = file('src/web')
-        port = 9002
-//        publicPath = "/frontend/"
-//        proxyUrl = "http://localhost:9090"
-    }
-
-    karma {
-        port = 9876
-        runnerPort = 9100
-        reporters = ["progress"]
-        frameworks = ["qunit"]
-//        preprocessors = ["'build/js/vuekt.js': ['webpack']"]
-    }
+  }
+//    shell {
+//        compileClasspath += sourceSets.main.compileClasspath
+//        runtimeClasspath += sourceSets.main.runtimeClasspath
+//        kotlin {
+//            srcDirs += 'src/shell/kotlin'
+//        }
+//    }
 }
 
-compileKotlin2Js {
-    kotlinOptions.metaInfo = true
-    kotlinOptions.outputFile = "${projectDir}/build/js/${output_filename}.js"
-//    kotlinOptions.sourceMap = true
-    kotlinOptions.moduleKind = 'commonjs'
-}
+compileKotlin2Js.kotlinOptions.moduleKind = "umd"
+//compileShellKotlin2Js {
+//    kotlinOptions{
+//        moduleKind = "commonjs"
+//    }
+//}
 
-compileTestKotlin2Js {
-    kotlinOptions.metaInfo = true
-    kotlinOptions.moduleKind = 'commonjs'
-}
-
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn 'copyToDist'
-    baseName = project.name
-    from "build/js"
-    include "${output_filename}*.js"
-    include "${project.group}/**/*.*"
-}
-
-if(project.gradle.startParameter.taskNames.contains("jar")){
-    compileKotlin2Js.dependsOn 'cleanJar'
-}
-compileKotlin2Js.dependsOn 'copyHtml'
-compileTestKotlin2Js.dependsOn 'copyTestHtml'
-
-task cleanJar {
-    dependsOn 'cleanJs'
-    doFirst {
-        delete 'build/libs'
-        delete 'dist'
-    }
-}
-
-task cleanJs {
-    doFirst {
-        delete 'build/js'
-    }
-}
-
-task copyToDist(type: Copy){
-    from('build/js'){
-        include "${output_filename}*.js"
-        include "${project.group}/**/*.*"
-    }
-    into "dist/${project.version}"
-}
-
-task copyHtml(type: Copy){
-    from('src/examples/'){
-        include "**/*.html"
-    }
-    into "build/js"
-}
-
-task copyTestHtml(type: Copy){
-    from('src/test/kotlin'){
-        include "**/*.html"
-    }
-    into "build/js"
-}
+//task buildBundle(type: NpmTask, dependsOn: [/*runDceshellKotlinJs,*/runDceKotlinJs]) {
+//    args = ["run", "bundle"]
+//}
+//
+//assemble.dependsOn buildBundle

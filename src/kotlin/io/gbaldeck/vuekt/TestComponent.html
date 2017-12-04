@@ -1,0 +1,34 @@
+<div xmlns:v-on="http://www.w3.org/1999/xhtml">
+  <div v-once> {{hello}}</div>
+  <div>{{sayHello()}}</div>
+  <div> {{compOne}}</div>
+  <a :href="link">Go to Google!</a>
+  <hr>
+  <button @click="increase(5, $event)">Click to Increase!</button>
+  <p>{{ counter }}</p>
+  <hr>
+  <p @mousemove="updateCoordinates">
+    Coordinates: {{ x }} / {{ y }}
+    - <span v-on:mousemove.stop.prevent="">DEAD SPOT</span>
+  </p>
+  <hr>
+  <input type="text" v-on:keyup.enter.space="alertMe">
+  <input type="text" v-model="color">
+  <label :style="{backgroundColor: color}">{{ color }}</label>
+  <hr>
+  <button v-on:click="counter2++">Increase</button>
+  <button v-on:click="counter2--">Decrease</button>
+  <p>Counter: {{ counter2}}</p>
+  <hr>
+  <!--<p @click="attachRed = !attachRed" :class="{'red': attachRed}">Result: {{ result() }} | {{ output }}</p>-->
+  <p @click="attachRed = !attachRed" :class="cssClasses">Result: {{ result() }} | {{ output }}</p>
+  <hr>
+  <p v-if="show">v-if example!</p>
+  <p v-else>v-else example!</p>
+  <p v-show="show">v-show example!</p>
+  <button @click="show = !show">Switch</button>
+  <hr>
+  <ul>
+    <li v-for="ingredient in ingredients">{{ ingredient }}</li>
+  </ul>
+</div>
