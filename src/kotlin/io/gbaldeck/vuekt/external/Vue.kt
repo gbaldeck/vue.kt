@@ -1,6 +1,7 @@
 package io.gbaldeck.vuekt.external
 
 import io.gbaldeck.vuekt.isNullOrUndefined
+import kotlin.reflect.KProperty
 
 @JsModule("vue")
 @JsNonModule
@@ -8,10 +9,10 @@ private external val _Vue: dynamic
 val Vue: VueInstance = _Vue.default
 
 external interface VueInstance{
-  fun <D, M, C, W, R> component(tagName: String, component: VueComponent<D, M, C, W, R>)
+  fun <D, M, C, W, R, P> component(tagName: String, component: VueComponent<D, M, C, W, R, P>)
 }
 
-interface VueComponent<D, M, C, W, R>{
+interface VueComponent<D, M, C, W, R, P>{
   var render: dynamic
   var staticRenderFns: dynamic
 
@@ -19,6 +20,7 @@ interface VueComponent<D, M, C, W, R>{
   var methods: M?
   var computed: C?
   var watch: W?
+  var props: Array<String>
 
   var beforeCreate: Function<Unit>?
   var created: Function<Unit>?
@@ -30,10 +32,10 @@ interface VueComponent<D, M, C, W, R>{
   var deactivated: Function<Unit>?
   var beforeDestroy: Function<Unit>?
   var destroyed: Function<Unit>?
-  var errorCaptured: ((dynamic, VueComponent<*,*,*,*,*>, String) -> Boolean?)?
+  var errorCaptured: ((dynamic, VueComponent<*,*,*,*,*, *>, String) -> Boolean?)?
 }
 
-inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initData(crossinline config: D.() -> Unit){
+inline fun <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.initData(crossinline config: D.() -> Unit){
   data = {
     val tempData = createJsObject<D>()
     tempData.config()
@@ -41,68 +43,71 @@ inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initData(crossinline conf
   }
 }
 
-inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initMethods(config: M.() -> Unit){
+inline fun <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.initMethods(config: M.() -> Unit){
   if(isNullOrUndefined(methods))
     methods = createJsObject()
 
   methods!!.config()
 }
 
-inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initComputed(config: C.() -> Unit){
+inline fun <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.initComputed(config: C.() -> Unit){
   if(isNullOrUndefined(computed))
     computed = createJsObject()
 
   computed!!.config()
 }
 
-inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initWatch(config: W.() -> Unit){
+inline fun <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.initWatch(config: W.() -> Unit){
   if(isNullOrUndefined(watch))
     watch = createJsObject()
 
   watch!!.config()
 }
 
-inline val <D, M, C, W, R> VueComponent<D, M, C, W, R>.vData: D
+fun <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.initProps(vararg propsList: KProperty<*>){
+  props = arrayOf()
+  propsList.forEachIndexed {
+    index, prop ->
+    props[index] = prop.name
+  }
+}
+
+inline val <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.vData: D
   get() {
     return js("this")
   }
 
-inline val <D, M, C, W, R> VueComponent<D, M, C, W, R>.vMethods: M
+inline val <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.vMethods: M
   get() {
     return js("this")
   }
 
-inline val <D, M, C, W, R> VueComponent<D, M, C, W, R>.vComputed: C
+inline val <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.vComputed: C
   get() {
     return js("this")
   }
 
-inline val <D, M, C, W, R> VueComponent<D, M, C, W, R>.vWatch: W
+inline val <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.vWatch: W
   get() {
     return js("this")
   }
 
-inline val <D, M, C, W, R> VueComponent<D, M, C, W, R>.vRefs: R
+inline val <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.vRefs: R
   get() {
     return js("this.\$refs")
   }
 
-fun <T: VueComponent<*, *, *, *, *>> createVueComponent(tagName: String, template: dynamic, config: T.() -> Unit): T{
+inline val <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.vProps: P
+  get() {
+    return js("this")
+  }
+
+fun <T: VueComponent<*, *, *, *, *, *>> createVueComponent(tagName: String, template: dynamic, config: T.() -> Unit): T{
   val component = createJsObject<T>()
   component.config()
   component.render = template.render
   component.staticRenderFns = template.staticRenderFns
-
-  if(isNullOrUndefined(Communicator.components[tagName])) {
-    setInterval({
-      if (!isNullOrUndefined(Communicator.components[tagName])) {
-        Communicator.resolveComponent(tagName, component)
-        clearInterval()
-      }
-    }, 5)
-  } else {
-    Communicator.resolveComponent(tagName, component)
-  }
+  Communicator.setComponentDefinition(tagName, component)
 
   return component
 }

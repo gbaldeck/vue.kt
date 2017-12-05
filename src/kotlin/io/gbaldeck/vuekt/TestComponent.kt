@@ -21,6 +21,7 @@ interface TestData{
   var persons: Array<Person>
   var showParagraph: Boolean
   var title: String
+  var name: String
 }
 
 interface TestMethods{
@@ -31,6 +32,7 @@ interface TestMethods{
   var result: () -> String
   var showAndChangeText: () -> Unit
   var destroy: () -> Unit
+  var changeName: () -> Unit
 }
 
 interface TestComputed {
@@ -47,7 +49,7 @@ interface TestRefs {
   val myButton: HTMLButtonElement
 }
 
-interface TestComponent: VueComponent<TestData, TestMethods, TestComputed, TestWatch, TestRefs>
+interface TestComponent: VueComponent<TestData, TestMethods, TestComputed, TestWatch, TestRefs, Unit>
 
 val initTestComponent = {
   createVueComponent<TestComponent>("test-component", require("KotlinSrc/TestComponent.html")) {
@@ -65,6 +67,7 @@ val initTestComponent = {
       persons = arrayOf(Person("sally","34"), Person("George", "23"))
       showParagraph = false
       title = "Title"
+      name = "Graham"
     }
 
     initMethods {
@@ -97,6 +100,10 @@ val initTestComponent = {
 
       destroy = {
         js("this.\$destroy()")
+      }
+
+      changeName = {
+        vData.name = "Sepheroth"
       }
     }
 

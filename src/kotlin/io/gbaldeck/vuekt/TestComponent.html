@@ -53,5 +53,7 @@
   <button @click="title = 'Changed'">Update Title</button>
   <button @click="destroy">Destroy</button>
   <hr>
-  <sub-component></sub-component>
+  <button @click="changeName">Change my name</button>
+  <sub-component :name="name"></sub-component>
+  <hr>
 </div>

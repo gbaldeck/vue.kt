@@ -3,12 +3,16 @@
 const Communicator = {
   components: {},
   setComponentResolver: (tagName, resolveFn) => {
-    Communicator.components[tagName] = (componentDef) => {
-      resolveFn(componentDef)
-    }
+    if(Communicator.components[tagName])
+      resolveFn(Communicator.components[tagName])
+    else
+      Communicator.components[tagName] = resolveFn
   },
-  resolveComponent: (tagName, componentDef) => {
-    Communicator.components[tagName](componentDef)
+  setComponentDefinition: (tagName, componentDef) => {
+    if(Communicator.components[tagName])
+      Communicator.components[tagName](componentDef)
+    else
+      Communicator.components[tagName] = componentDef
   }
 }
 

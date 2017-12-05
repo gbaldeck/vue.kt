@@ -1,7 +1,7 @@
 package io.gbaldeck.vuekt.external
 
 external interface CommunicatorInstance {
-  fun resolveComponent(tagName: String, component: VueComponent<*, *, *, *, *>)
+  fun setComponentDefinition(tagName: String, component: VueComponent<*, *, *, *, *, *>)
   val components: dynamic
 }
 
