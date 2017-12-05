@@ -1,19 +1,26 @@
 package io.gbaldeck.vuekt
 
-import io.gbaldeck.vuekt.external.VueComponent
-import io.gbaldeck.vuekt.external.createVueComponent
-import io.gbaldeck.vuekt.external.initProps
-import io.gbaldeck.vuekt.external.require
+import io.gbaldeck.vuekt.external.*
 
-interface SubProps {
-  val name: String
+interface SubMethods {
+  var resetName: () -> Unit
 }
 
-interface SubComponent: VueComponent<Unit, Unit, Unit, Unit, Unit, SubProps>
+interface SubProps {
+  var name: String
+}
+
+interface SubComponent: VueComponent<Unit, SubMethods, Unit, Unit, Unit, SubProps>
 
 val initSubComponent = {
   require("KotlinSrc/SubComponent.scss")
   createVueComponent<SubComponent>("sub-component", require("KotlinSrc/SubComponent.html")) {
     initProps(SubProps::name)
+    initMethods {
+      resetName = {
+        vProps.name = "Graham"
+        vEmit("nameWasReset", vProps.name)
+      }
+    }
   }
 }

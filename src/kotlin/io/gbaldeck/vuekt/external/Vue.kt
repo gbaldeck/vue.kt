@@ -102,6 +102,10 @@ inline val <D, M, C, W, R, P> VueComponent<D, M, C, W, R, P>.vProps: P
     return js("this")
   }
 
+inline fun <D, M, C, W, R, P, ED> VueComponent<D, M, C, W, R, P>.vEmit(eventName: String, emitData: ED){
+  js("this.\$emit(eventName, emitData)")
+}
+
 fun <T: VueComponent<*, *, *, *, *, *>> createVueComponent(tagName: String, template: dynamic, config: T.() -> Unit): T{
   val component = createJsObject<T>()
   component.config()

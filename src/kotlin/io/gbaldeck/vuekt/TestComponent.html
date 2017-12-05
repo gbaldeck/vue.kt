@@ -54,6 +54,6 @@
   <button @click="destroy">Destroy</button>
   <hr>
   <button @click="changeName">Change my name</button>
-  <sub-component :name="name"></sub-component>
+  <sub-component :name="name" @nameWasReset="name = $event"></sub-component>
   <hr>
 </div>
