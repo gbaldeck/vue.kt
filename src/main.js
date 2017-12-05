@@ -31,9 +31,15 @@ Vue.config.productionTip = false
 
 Vue.use(Framework7Vue)
 
+Vue.component('sub-component', function (resolve, reject) {
+  Communicator.setComponentResolver("sub-component",resolve)
+});
+
 Vue.component('test-component', function (resolve, reject) {
   Communicator.setComponentResolver("test-component",resolve)
-})
+});
+
+
 
 /* eslint-disable no-new */
 new Vue({

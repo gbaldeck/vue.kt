@@ -33,10 +33,12 @@ interface VueComponent<D, M, C, W, R>{
   var errorCaptured: ((dynamic, VueComponent<*,*,*,*,*>, String) -> Boolean?)?
 }
 
-inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initData(config: D.() -> Unit){
-  val tempData = createJsObject<D>()
-  tempData.config()
-  data = { tempData }
+inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initData(crossinline config: D.() -> Unit){
+  data = {
+    val tempData = createJsObject<D>()
+    tempData.config()
+    tempData
+  }
 }
 
 inline fun <D, M, C, W, R> VueComponent<D, M, C, W, R>.initMethods(config: M.() -> Unit){
@@ -90,8 +92,18 @@ fun <T: VueComponent<*, *, *, *, *>> createVueComponent(tagName: String, templat
   component.config()
   component.render = template.render
   component.staticRenderFns = template.staticRenderFns
-//  Vue.component(tagName, component)
-  Communicator.resolveComponent(tagName, component)
+
+  if(isNullOrUndefined(Communicator.components[tagName])) {
+    setInterval({
+      if (!isNullOrUndefined(Communicator.components[tagName])) {
+        Communicator.resolveComponent(tagName, component)
+        clearInterval()
+      }
+    }, 5)
+  } else {
+    Communicator.resolveComponent(tagName, component)
+  }
+
   return component
 }
 

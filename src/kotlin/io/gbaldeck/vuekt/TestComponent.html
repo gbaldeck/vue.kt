@@ -50,6 +50,8 @@
   <p v-if="showParagraph">This is not always visible</p>
   <hr>
   <h1>{{ title }}</h1>
-  <button @click="title - 'Changed'">Update Title</button>
+  <button @click="title = 'Changed'">Update Title</button>
   <button @click="destroy">Destroy</button>
+  <hr>
+  <sub-component></sub-component>
 </div>
