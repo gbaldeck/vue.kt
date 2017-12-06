@@ -35,6 +35,10 @@ const highlightDirective = {}
 Communicator.setDirectiveReceiver('highlight', highlightDirective)
 Vue.directive('highlight',highlightDirective);
 
+Vue.filter("to-lowercase", function(value){
+  return Communicator.filters['to-lowercase'](value)
+});
+
 Vue.component('sub-component', function (resolve, reject) {
   Communicator.setComponentResolver("sub-component",resolve)
 });

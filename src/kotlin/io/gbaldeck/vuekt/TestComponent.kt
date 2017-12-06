@@ -66,7 +66,7 @@ val initTestComponent = {
       ingredients = arrayOf("meat", "vegetables", "salt")
       persons = arrayOf(Person("sally","34"), Person("George", "23"))
       showParagraph = false
-      title = "Title"
+      title = "TO LOWER CASE"
       name = "Graham"
     }
 

@@ -1,10 +1,12 @@
 package io.gbaldeck.vuekt
 
 fun main(args: Array<String>) {
-  //just in case, always init directives first
-  //this is so that their definition will always be available before the component templates are loaded
+
+  initToLowerCaseFilter()
   initHighlightDirective()
 
+  //just in case, always init components last
+  //this is so that everything their template needs will be available when they are rendered
   initSubComponent()
   initTestComponent()
 

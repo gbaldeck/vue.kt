@@ -3,8 +3,10 @@ package io.gbaldeck.vuekt.external
 external interface CommunicatorInstance {
   fun setComponentDefinition(tagName: String, component: VueComponent<*, *, *, *, *, *>)
   fun setDirectiveDefinition(name: String, directive: VueDirective)
+  fun setFilterFunction(name: String, filterFun: Function<dynamic>)
   val components: dynamic
   val directives: dynamic
+  val filters: dynamic
 }
 
 @JsModule("communicator")

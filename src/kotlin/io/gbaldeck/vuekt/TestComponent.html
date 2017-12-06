@@ -40,7 +40,7 @@
     </ul>
   <hr>
   <template v-for="(ingredient, index) in ingredients">
-    <h1 v-highlight:background="'red'">{{ingredient}}</h1>
+    <h1 v-highlight:background.delayed="'red'">{{ingredient}}</h1>
     <p>{{index}}</p>
   </template>
   <hr>
@@ -49,7 +49,7 @@
   <button @click="showAndChangeText" ref="myButton">Show Paragraph</button>
   <p v-if="showParagraph">This is not always visible</p>
   <hr>
-  <h1>{{ title }}</h1>
+  <h1>{{ title | to-lowercase }}</h1>
   <button @click="title = 'Changed'">Update Title</button>
   <button @click="destroy">Destroy</button>
   <hr>
