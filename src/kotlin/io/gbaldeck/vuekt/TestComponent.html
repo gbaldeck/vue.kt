@@ -40,7 +40,7 @@
     </ul>
   <hr>
   <template v-for="(ingredient, index) in ingredients">
-    <h1>{{ingredient}}</h1>
+    <h1 v-highlight:background="'red'">{{ingredient}}</h1>
     <p>{{index}}</p>
   </template>
   <hr>

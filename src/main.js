@@ -31,6 +31,10 @@ Vue.config.productionTip = false
 
 Vue.use(Framework7Vue)
 
+const highlightDirective = {}
+Communicator.setDirectiveReceiver('highlight', highlightDirective)
+Vue.directive('highlight',highlightDirective);
+
 Vue.component('sub-component', function (resolve, reject) {
   Communicator.setComponentResolver("sub-component",resolve)
 });
