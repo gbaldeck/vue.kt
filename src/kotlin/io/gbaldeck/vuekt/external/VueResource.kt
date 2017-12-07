@@ -16,3 +16,13 @@ inline val VueDirective.vHttp: VueHttp
   get() {
     return js("this.\$http")
   }
+
+inline val VueComponent<*,*,*,*,*,*>.vResource: dynamic
+  get() {
+    return js("this.\$resource")
+  }
+
+inline val VueDirective.vResource: dynamic
+  get() {
+    return js("this.\$resource")
+  }

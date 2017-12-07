@@ -3,15 +3,6 @@ package io.gbaldeck.vuekt.external
 import io.gbaldeck.vuekt.isNullOrUndefined
 import kotlin.reflect.KProperty
 
-@JsModule("vue")
-@JsNonModule
-private external val _Vue: dynamic
-val Vue: VueInstance = _Vue.default
-
-external interface VueInstance{
-  fun <D, M, C, W, R, P> component(tagName: String, component: VueComponent<D, M, C, W, R, P>)
-}
-
 interface VueComponent<D, M, C, W, R, P>{
   var render: dynamic
   var staticRenderFns: dynamic
