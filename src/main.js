@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import VueResource from 'vue-resource'
 import Framework7 from 'framework7'
 import Framework7Vue from 'framework7-vue'
 import App from './App'
@@ -29,6 +30,7 @@ head.appendChild(link2);
 
 Vue.config.productionTip = false
 
+Vue.use(VueResource)
 Vue.use(Framework7Vue)
 
 const highlightDirective = {}
