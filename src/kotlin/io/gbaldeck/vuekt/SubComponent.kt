@@ -1,25 +1,50 @@
 package io.gbaldeck.vuekt
 
-import io.gbaldeck.vuekt.external.*
+import io.gbaldeck.vuekt.wrapper.*
 
 interface SubMethods {
   var resetName: () -> Unit
+  var navigateToTestComponent: () -> Unit
 }
 
 interface SubProps {
   var name: String
 }
 
-interface SubComponent: VueComponent<Unit, SubMethods, Unit, Unit, Unit, SubProps>
+interface SubData {
+  var dataName: String
+}
+
+interface SubWatch {
+  var `$route`: (VueRoute<SubProps, *>, VueRoute<SubProps, *>) -> Unit
+}
+
+interface SubComponent: VueComponent<SubData, SubMethods, Unit, SubWatch, Unit, SubProps>, VueComponentRoute<SubProps, Unit>
 
 val initSubComponent = {
   require("KotlinSrc/SubComponent.scss")
   createVueComponent<SubComponent>("sub-component", require("KotlinSrc/SubComponent.html")) {
     initProps(SubProps::name)
+
+    initData {
+      dataName = vRoute.params.name
+    }
+
     initMethods {
       resetName = {
         vProps.name = "Graham"
         vEmit("nameWasReset", vProps.name)
+      }
+
+      navigateToTestComponent = {
+        vRouter.push("/")
+      }
+    }
+
+    initWatch {
+      `$route` = {
+        routeA, routeB ->
+        vData.dataName = routeA.params.name
       }
     }
   }

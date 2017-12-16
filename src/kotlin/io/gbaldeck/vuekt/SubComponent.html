@@ -2,7 +2,8 @@
   <div>
     <h3>You may view the User Details here</h3>
     <p>Many Details</p>
-    <p>User Name: {{ name }}</p>
+    <p>User Name: {{ name ? "From params via Props: "+name : "Straight from params: "+dataName }}</p>
     <button @click="resetName">Reset Name</button>
+    <button @click="navigateToTestComponent">Go to Test Component</button>
   </div>
 </div>

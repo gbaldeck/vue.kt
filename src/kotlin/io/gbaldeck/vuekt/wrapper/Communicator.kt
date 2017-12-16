@@ -1,4 +1,4 @@
-package io.gbaldeck.vuekt.external
+package io.gbaldeck.vuekt.wrapper
 
 external interface CommunicatorInstance {
   fun setComponentDefinition(tagName: String, component: VueComponent<*, *, *, *, *, *>)

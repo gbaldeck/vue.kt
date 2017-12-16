@@ -1,7 +1,7 @@
 package io.gbaldeck.vuekt
 
-import io.gbaldeck.vuekt.external.createVueDirective
-import io.gbaldeck.vuekt.external.setTimeout
+import io.gbaldeck.vuekt.wrapper.createVueDirective
+import io.gbaldeck.vuekt.wrapper.setTimeout
 
 val initHighlightDirective = {
   createVueDirective("highlight") {

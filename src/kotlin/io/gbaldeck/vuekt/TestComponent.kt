@@ -1,6 +1,6 @@
 package io.gbaldeck.vuekt
 
-import io.gbaldeck.vuekt.external.*
+import io.gbaldeck.vuekt.wrapper.*
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.MouseEvent
@@ -49,7 +49,7 @@ interface TestRefs {
   val myButton: HTMLButtonElement
 }
 
-interface TestComponent: VueComponent<TestData, TestMethods, TestComputed, TestWatch, TestRefs, Unit>
+interface TestComponent: VueComponent<TestData, TestMethods, TestComputed, TestWatch, TestRefs, Unit>, VueComponentRoute<Unit, Unit>
 
 val initTestComponent = {
   createVueComponent<TestComponent>("test-component", require("KotlinSrc/TestComponent.html")) {

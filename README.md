@@ -12,10 +12,6 @@ In the package `io.gbaldeck.vuekt.external` you will find the wrapper for Vue. I
 
 Take a look at `TestComponent.kt` to see it in action. Note that the Vue wrapper is a work in progress and is not completed. I'll be updating the documentation more and more as I get closer to finishing it.
 
-I included Framework 7 so you can hit the ground running to make a mobile app.
-
-After updating Framework 7 or doing the initial `npm install` make sure to do a `npm run build`. This copies several files needed by Framework 7 into the project's `static` folder.
-
 For detailed explanation on how project is setup with Vue and Webpack, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 ## Build Setup
@@ -24,7 +20,7 @@ For detailed explanation on how project is setup with Vue and Webpack, checkout 
 # install dependencies
 npm install
 
-# build Kotlin source with grade (uses gradle 4.2)
+# build Kotlin source with gradle (uses gradle 4.2)
 gradle build
 
 # serve with hot reload at localhost:8080

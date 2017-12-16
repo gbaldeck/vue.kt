@@ -1,6 +1,6 @@
-package io.gbaldeck.vuekt.external
+package io.gbaldeck.vuekt.wrapper
 
-interface VueDirective {
+external interface VueDirective {
   var bind: ((el: dynamic, binding:dynamic, vnode:dynamic) -> Unit)?
   var inserted: ((el: dynamic, binding:dynamic, vnode:dynamic) -> Unit)?
   var update: ((el: dynamic, binding:dynamic, vnode:dynamic, oldVnode: dynamic) -> Unit)?

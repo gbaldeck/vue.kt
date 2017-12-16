@@ -21,10 +21,10 @@
     <!-- Add to home screen for Windows -->
     <meta name="msapplication-TileImage" content="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/msapplication-icon-144x144.png">
     <meta name="msapplication-TileColor" content="#000000">
-    <link rel=preload href=/static/css/framework7.ios.min.css as=style>
-    <link rel=preload href=/static/css/framework7.ios.colors.min.css as=style>
-    <link rel=preload href=/static/css/framework7.material.min.css as=style>
-    <link rel=preload href=/static/css/framework7.material.colors.min.css as=style>
+    <!--<link rel=preload href=/static/css/framework7.ios.min.css as=style>-->
+    <!--<link rel=preload href=/static/css/framework7.ios.colors.min.css as=style>-->
+    <!--<link rel=preload href=/static/css/framework7.material.min.css as=style>-->
+    <!--<link rel=preload href=/static/css/framework7.material.colors.min.css as=style>-->
     <% for (var chunk of webpack.chunks) {
         for (var file of chunk.files) {
           if (file.match(/\.(js|css)$/)) { %>

@@ -85,15 +85,6 @@ module.exports = {
       minChunks: Infinity,
       // (with more entries, this ensures that no other module
       //  goes into the vendor chunk)
-    }),
-    new CopyWebpackPlugin([
-      {
-        from: resolve('node_modules/framework7/dist/css/*.min.css'),
-        to: resolve('static/css'),
-        ignore: ['.*'],
-        flatten: true,
-        force: true
-      }
-    ])
+    })
   ]
 }

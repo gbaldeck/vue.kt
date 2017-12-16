@@ -1,4 +1,4 @@
-package io.gbaldeck.vuekt.external
+package io.gbaldeck.vuekt.wrapper
 
 
 external fun require(module: String): dynamic
