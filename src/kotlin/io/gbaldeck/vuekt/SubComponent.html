@@ -3,7 +3,14 @@
     <h3>You may view the User Details here</h3>
     <p>Many Details</p>
     <p>User Name: {{ name ? "From params via Props: "+name : "Straight from params: "+dataName }}</p>
+    <p v-if="$route.query">
+      Locale: {{ $route.query.locale }}
+    </p>
+    <p v-if="$route.query">
+      Analytics: {{ $route.query.q }}
+    </p>
     <button @click="resetName">Reset Name</button>
     <button @click="navigateToTestComponent">Go to Test Component</button>
+
   </div>
 </div>
