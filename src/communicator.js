@@ -35,6 +35,10 @@ const Communicator = {
 
   setFilterFunction: (name, filterFun) => {
     Communicator.filters[name] = filterFun
+  },
+
+  setStore: (store) => {
+    Communicator.store = store
   }
 }
 

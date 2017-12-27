@@ -49,7 +49,7 @@ interface TestRefs {
   val myButton: HTMLButtonElement
 }
 
-interface TestComponent: VueComponent<TestData, TestMethods, TestComputed, TestWatch, TestRefs, Unit>, VueComponentRoute<Unit, Unit>
+interface TestComponent: VueComponent<TestData, TestMethods, TestComputed, TestWatch, TestRefs, Unit>, VueRouteComponent<Unit, Unit>
 
 val initTestComponent = {
   createVueComponent<TestComponent>("test-component", require("KotlinSrc/TestComponent.html")) {

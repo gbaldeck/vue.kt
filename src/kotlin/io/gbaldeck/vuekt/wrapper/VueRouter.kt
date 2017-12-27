@@ -1,6 +1,12 @@
 package io.gbaldeck.vuekt.wrapper
 
-external interface VueComponentRoute<PARAMS, QUERY>
+typealias RouteGuardLambda = (to: dynamic, from: dynamic, next: dynamic) -> Unit
+
+external interface VueRouteComponent<PARAMS, QUERY> {
+  var beforeRouteEnter: RouteGuardLambda?
+  var beforeRouteUpdate: RouteGuardLambda?
+  var beforeRouteLeave: RouteGuardLambda?
+}
 
 external interface VueRouter {
   fun push(target: String)
@@ -11,7 +17,7 @@ external interface VueRouterTarget {
   var path: String
 }
 
-inline val VueComponentRoute<*,*>.vRouter: VueRouter
+inline val VueRouteComponent<*,*>.vRouter: VueRouter
   get() {
     return js("this.\$router")
   }
@@ -21,7 +27,7 @@ external interface VueRoute<out PARAMS, out QUERY> {
   val query: QUERY
 }
 
-inline val <PARAMS, QUERY> VueComponentRoute<PARAMS, QUERY>.vRoute: VueRoute<PARAMS, QUERY>
+inline val <PARAMS, QUERY> VueRouteComponent<PARAMS, QUERY>.vRoute: VueRoute<PARAMS, QUERY>
   get() {
     return js("this.\$route")
   }

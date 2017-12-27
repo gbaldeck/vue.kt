@@ -118,5 +118,3 @@ fun <T: VueComponent<*, *, *, *, *, *>> createVueComponent(tagName: String, temp
 
   return component
 }
-
-fun <T> createJsObject(): T = js("{}")

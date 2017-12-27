@@ -19,7 +19,7 @@ interface SubWatch {
   var `$route`: (VueRoute<SubProps, *>, VueRoute<SubProps, *>) -> Unit
 }
 
-interface SubComponent: VueComponent<SubData, SubMethods, Unit, SubWatch, Unit, SubProps>, VueComponentRoute<SubProps, Unit>
+interface SubComponent: VueComponent<SubData, SubMethods, Unit, SubWatch, Unit, SubProps>, VueRouteComponent<SubProps, Unit>
 
 val initSubComponent = {
   require("KotlinSrc/SubComponent.scss")
