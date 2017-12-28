@@ -4,21 +4,22 @@ package io.gbaldeck.vuekt.wrapper
 @JsNonModule
 private external val _vuex: dynamic
 
-external interface VuexStore<STATE>{
+external interface VuexStore<STATE, GETTERS>{
   val state: STATE?
+  val getters: GETTERS?
 }
 
-fun <T: VuexStore<*>> createVueStore(config: T.() -> Unit): T{
+fun <T: VuexStore<*,*>> createVuexStore(config: T.() -> Unit): T{
   val storedef = createJsObject<T>()
   storedef.config()
 
   val vuexref = _vuex.default
-  val store = js("new vuexref.store(storedef)")
+  val store = js("new vuexref.Store(storedef)")
 
   return store
 }
 
-fun <STATE> VuexStore<STATE>.initState(config: STATE.() -> Unit){
+fun <STATE> VuexStore<STATE,*>.initState(config: STATE.() -> Unit){
   if(isNullOrUndefined(state)){
     val tempstate = createJsObject<STATE>()
     tempstate.config()
@@ -27,6 +28,18 @@ fun <STATE> VuexStore<STATE>.initState(config: STATE.() -> Unit){
     js("_this.state = tempstate")
   } else {
     state!!.config()
+  }
+}
+
+fun <GETTERFUNCTIONS> VuexStore<*, *>.initGetters(config: GETTERFUNCTIONS.() -> Unit){
+  if(isNullOrUndefined(getters)){
+    val tempgetters = createJsObject<GETTERFUNCTIONS>()
+    tempgetters.config()
+
+    val _this = this
+    js("_this.getters = tempgetters")
+  } else {
+    (getters.asDynamic() as GETTERFUNCTIONS).config()
   }
 }
 

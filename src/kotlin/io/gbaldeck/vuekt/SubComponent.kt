@@ -2,24 +2,36 @@ package io.gbaldeck.vuekt
 
 import io.gbaldeck.vuekt.wrapper.*
 
-interface SubMethods {
+external interface SubMethods {
   var resetName: () -> Unit
   var navigateToTestComponent: () -> Unit
+  var incrementStoreCounter: () -> Unit
+  var decrementStoreCounter: () -> Unit
+  var incrementOtherCounter: () -> Unit
+  var decrementOtherCounter: () -> Unit
 }
 
-interface SubProps {
+external interface SubProps {
   var name: String
 }
 
-interface SubData {
+external interface SubData {
   var dataName: String
+  var otherCounter: Int
 }
 
-interface SubWatch {
+external interface SubWatch {
   var `$route`: (VueRoute<SubProps, *>, VueRoute<SubProps, *>) -> Unit
 }
 
-interface SubComponent: VueComponent<SubData, SubMethods, Unit, SubWatch, Unit, SubProps>, VueRouteComponent<SubProps, Unit>
+external interface SubComputed {
+  var storeCounter: () -> Int
+  var doubleStoreCounter: () -> Int
+}
+
+
+
+interface SubComponent: VueComponent<SubData, SubMethods, SubComputed, SubWatch, Unit, SubProps>, VueRouteComponent<SubProps, Unit>
 
 val initSubComponent = {
   require("KotlinSrc/SubComponent.scss")
@@ -28,6 +40,7 @@ val initSubComponent = {
 
     initData {
       dataName = vRoute.params.name
+      otherCounter = 0
     }
 
     initMethods {
@@ -38,6 +51,35 @@ val initSubComponent = {
 
       navigateToTestComponent = {
         vRouter.push("/")
+      }
+
+      incrementStoreCounter = {
+        testStore.state!!.counter++
+
+      }
+
+      decrementStoreCounter = {
+        testStore.state!!.counter--
+      }
+
+      incrementOtherCounter = {
+        vData.otherCounter++
+      }
+
+      decrementOtherCounter = {
+        vData.otherCounter--
+      }
+    }
+
+    initComputed {
+      storeCounter = {
+        console.log("Store counter called")
+        testStore.state!!.counter
+      }
+
+      doubleStoreCounter = {
+        console.log("Double Store counter called")
+        testStore.getters!!.doubleCounter
       }
     }
 

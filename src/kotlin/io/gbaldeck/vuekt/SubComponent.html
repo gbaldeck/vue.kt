@@ -11,6 +11,18 @@
     </p>
     <button @click="resetName">Reset Name</button>
     <button @click="navigateToTestComponent">Go to Test Component</button>
-
+  </div>
+  <hr>
+  <div>
+    <button @click="incrementStoreCounter">Increment Store Counter</button>
+    <button @click="decrementStoreCounter">Decrement Store Counter</button>
+    <div>Store Counter: {{storeCounter}}</div>
+    <div>Double Store Counter: {{doubleStoreCounter}}</div>
+  </div>
+  <hr>
+  <div>
+    <button @click="incrementOtherCounter">Increment Other Counter</button>
+    <button @click="decrementOtherCounter">Decrement Other Counter</button>
+    <div>Other Counter: {{otherCounter}}</div>
   </div>
 </div>

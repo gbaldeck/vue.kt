@@ -1,10 +1,33 @@
 package io.gbaldeck.vuekt
 
 import io.gbaldeck.vuekt.wrapper.VuexStore
-import io.gbaldeck.vuekt.wrapper.createVueStore
+import io.gbaldeck.vuekt.wrapper.createVuexStore
+import io.gbaldeck.vuekt.wrapper.initGetters
+import io.gbaldeck.vuekt.wrapper.initState
 
-external interface StoreState
+external interface StoreState{
+  var counter: Int
+}
 
-external interface TestStore: VuexStore<StoreState>
+external interface StoreGetterFuns {
+  var doubleCounter: (StoreState) -> Int
+}
 
-val testStore = createVueStore<TestStore> {  }
+external interface StoreGetters {
+  var doubleCounter: Int
+}
+
+external interface TestStore: VuexStore<StoreState, StoreGetters>
+
+val testStore = createVuexStore<TestStore> {
+  initState {
+    counter = 0
+  }
+
+  initGetters<StoreGetterFuns> {
+    doubleCounter = {
+      state ->
+      state.counter * 2
+    }
+  }
+}
