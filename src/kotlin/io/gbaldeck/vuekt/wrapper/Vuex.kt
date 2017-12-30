@@ -32,15 +32,11 @@ fun <STATE> VuexStore<STATE,*>.initState(config: STATE.() -> Unit){
 }
 
 fun <GETTERFUNCTIONS> VuexStore<*, *>.initGetters(config: GETTERFUNCTIONS.() -> Unit){
-  if(isNullOrUndefined(getters)){
-    val tempgetters = createJsObject<GETTERFUNCTIONS>()
-    tempgetters.config()
+  val tempgetters = createJsObject<GETTERFUNCTIONS>()
+  tempgetters.config()
 
-    val _this = this
-    js("_this.getters = tempgetters")
-  } else {
-    (getters.asDynamic() as GETTERFUNCTIONS).config()
-  }
+  val _this = this
+  js("_this.getters = tempgetters")
 }
 
 

@@ -1,5 +1,7 @@
 package io.gbaldeck.vuekt
 
+import io.gbaldeck.vuekt.wrapper.classStyle.Vue
+
 fun main(args: Array<String>) {
 
   initToLowerCaseFilter()
@@ -10,4 +12,5 @@ fun main(args: Array<String>) {
   initSubComponent()
   initTestComponent()
 
+  Vue component ClassStyleComponent()
 }

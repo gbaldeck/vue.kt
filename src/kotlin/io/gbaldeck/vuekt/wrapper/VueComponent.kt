@@ -25,8 +25,7 @@ external interface VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>{
   var errorCaptured: ((dynamic, VueComponent<*,*,*,*,*,*>, String) -> Boolean?)?
 }
 
-inline fun <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.initData(noinline config: DATA.() -> Unit){
+inline fun <DATA> VueComponent<DATA, *, *, *, *, *>.initData(noinline config: DATA.() -> Unit){
   data = {
     val configTemp = config //so that the DCE doesn't cut out the parameter since its not being used in the Kotlin code
     val tempData = createJsObject<DATA>()
@@ -35,32 +34,27 @@ inline fun <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
   }
 }
 
-inline fun <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.initMethods(config: METHODS.() -> Unit){
-  if(isNullOrUndefined(methods))
-    methods = createJsObject()
-
+inline fun <METHODS> VueComponent<*, METHODS, *, *, *, *>.initMethods(config: METHODS.() -> Unit){
+  methods = createJsObject()
   methods!!.config()
 }
 
-inline fun <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.initComputed(config: COMPUTED.() -> Unit){
-  if(isNullOrUndefined(computed))
-    computed = createJsObject()
+inline fun <COMPUTEDFUNCTIONS> VueComponent<*, *, *, *, *, *>.initComputed(config: COMPUTEDFUNCTIONS.() -> Unit){
+  val tempcomputed = createJsObject<COMPUTEDFUNCTIONS>()
+  tempcomputed.config()
 
-  computed!!.config()
+  val _this = this
+  js("_this.computed = tempcomputed")
 }
 
-inline fun <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.initWatch(config: WATCH.() -> Unit){
+inline fun <WATCH> VueComponent<*, *, *, WATCH, *, *>.initWatch(config: WATCH.() -> Unit){
   if(isNullOrUndefined(watch))
     watch = createJsObject()
 
   watch!!.config()
 }
 
-fun <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.initProps(vararg propsList: KProperty<*>){
+fun <PROPS> VueComponent<*, *, *, *, *, PROPS>.initProps(vararg propsList: KProperty<*>){
   props = arrayOf()
   propsList.forEachIndexed {
     index, prop ->
@@ -68,44 +62,38 @@ fun <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
   }
 }
 
-inline val <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.vData: DATA
+inline val <DATA> VueComponent<DATA, *, *, *, *, *>.vData: DATA
   get() {
     return js("this")
   }
 
-inline val <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.vMethods: METHODS
+inline val <METHODS>VueComponent<*, METHODS, *, *, *, *>.vMethods: METHODS
   get() {
     return js("this")
   }
 
-inline val <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.vComputed: COMPUTED
+inline val <COMPUTED> VueComponent<*, *, COMPUTED, *, *, *>.vComputed: COMPUTED
   get() {
     return js("this")
   }
 
-inline val <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.vWatch: WATCH
+inline val <WATCH>VueComponent<*, *, *, WATCH, *, *>.vWatch: WATCH
   get() {
     return js("this")
   }
 
-inline val <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.vRefs: REFS
+inline val <REFS> VueComponent<*, *, *, *, REFS, *>.vRefs: REFS
   get() {
     return js("this.\$refs")
   }
 
-inline val <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.vProps: PROPS
+inline val <PROPS>
+  VueComponent<*, *, *, *, *, PROPS>.vProps: PROPS
   get() {
     return js("this")
   }
 
-inline fun <DATA, METHODS, COMPUTED, WATCH, REFS, PROPS, EMITDATA>
-  VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>.vEmit(eventName: String, emitData: EMITDATA){
+inline fun <EMITDATA> VueComponent<*, *, *, *, *, *>.vEmit(eventName: String, emitData: EMITDATA){
   js("this.\$emit(eventName, emitData)")
 }
 

@@ -35,10 +35,16 @@ interface TestMethods{
   var changeName: () -> Unit
 }
 
-interface TestComputed {
+interface TestComputedFunctions {
   var compOne: () -> String
   var output: () -> String
   var cssClasses: () -> dynamic
+}
+
+interface TestComputed {
+  var compOne: String
+  var output: String
+  var cssClasses: dynamic
 }
 
 interface TestWatch {
@@ -107,7 +113,7 @@ val initTestComponent = {
       }
     }
 
-    initComputed {
+    initComputed<TestComputedFunctions> {
       compOne = {
         "1" + vData.hello
       }

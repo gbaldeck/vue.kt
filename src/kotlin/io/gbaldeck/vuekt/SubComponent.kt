@@ -24,9 +24,14 @@ external interface SubWatch {
   var `$route`: (VueRoute<SubProps, *>, VueRoute<SubProps, *>) -> Unit
 }
 
-external interface SubComputed {
+external interface SubComputedFunctions {
   var storeCounter: () -> Int
   var doubleStoreCounter: () -> Int
+}
+
+external interface SubComputed {
+  var storeCounter: Int
+  var doubleStoreCounter: Int
 }
 
 
@@ -71,7 +76,7 @@ val initSubComponent = {
       }
     }
 
-    initComputed {
+    initComputed<SubComputedFunctions> {
       storeCounter = {
         console.log("Store counter called")
         testStore.state!!.counter
