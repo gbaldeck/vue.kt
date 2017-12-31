@@ -9,31 +9,12 @@ import kotlin.reflect.KProperty
 interface VueKtDelegate
 
 abstract class VueComponent {
-
-  private val refs = mutableListOf<String>()
-
   abstract val template: dynamic
   open val elementName: String = _elementName()
 
-  open fun beforeCreate(){
-    proxyRefs(this@VueComponent)
-  }
+  open fun beforeCreate(){}
   open fun created(){}
   open fun beforeMount(){}
-
-  private inline fun proxyRefs(thisRef: dynamic){
-    refs.forEach {
-      refName ->
-      val propertyDescriptor = createJsObject<Any>().also {
-        it.asDynamic().get = {
-          val rn = refName
-          val re = js("this.\$refs[rn]")
-          re
-        }
-      }
-      js("Object").defineProperty(thisRef, refName, propertyDescriptor)
-    }
-  }
 
   class Computed<out T>(private val method: KCallable<T>): VueKtDelegate {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
@@ -55,9 +36,10 @@ abstract class VueComponent {
 
   inner class Ref<T>: VueKtDelegate {
     operator fun getValue(thisRef: Any, property: KProperty<*>): T {
-      refs.add(property.name)
-//      return js("this.\$refs[propertyName]")
-      return createJsObject()
+      return Pair(property.name, {
+        val propertyName = property.name
+        js("this.\$refs[propertyName]")
+      }).asDynamic()
     }
   }
 
@@ -112,7 +94,8 @@ object Vue{
             protoNamesList.remove(methodName)
           }
           is VueComponent.Ref<*> -> {
-            val temp = component[delegatePropertyKey] //calling get function to store the property name in refs
+            val (propertyName, refComputedFun) = component[delegatePropertyKey] as Pair<String, dynamic>
+            vueObject.computed[propertyName] = refComputedFun
           }
           is VueComponent.Prop<*> -> {
             val propName = component[delegatePropertyKey]
