@@ -9,8 +9,9 @@ fun main(args: Array<String>) {
 
   //just in case, always init components last
   //this is so that everything their template needs will be available when they are rendered
-  initSubComponent()
+//  initSubComponent()
+  Vue component SubComponentClassStyle()
   initTestComponent()
 
-  Vue component ClassStyleComponent()
+//  Vue component ClassStyleComponent()
 }

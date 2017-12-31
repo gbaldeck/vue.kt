@@ -9,7 +9,7 @@
     <p v-if="$route.query">
       Analytics: {{ $route.query.q }}
     </p>
-    <button @click="resetName">Reset Name</button>
+    <button @click="resetName" ref="resetNameButton">Reset Name</button>
     <button @click="navigateToTestComponent">Go to Test Component</button>
   </div>
   <hr>

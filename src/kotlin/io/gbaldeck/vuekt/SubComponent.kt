@@ -1,6 +1,7 @@
 package io.gbaldeck.vuekt
 
 import io.gbaldeck.vuekt.wrapper.*
+import org.w3c.dom.HTMLButtonElement
 
 external interface SubMethods {
   var resetName: () -> Unit
@@ -32,6 +33,69 @@ external interface SubComputedFunctions {
 external interface SubComputed {
   var storeCounter: Int
   var doubleStoreCounter: Int
+}
+
+class SubComponentClassStyle: io.gbaldeck.vuekt.wrapper.classStyle.VueComponent(){
+  override val template = require("KotlinSrc/SubComponent.html")
+  override val elementName: String = "sub-component"
+
+  var dataName: String = ""
+  var otherCounter = 0
+
+  var name: String by Prop()
+  val resetNameButton: HTMLButtonElement by Ref()
+
+  val storeCounter: Int by Computed(SubComponentClassStyle::storeCounterFun)
+  val doubleStoreCounter: Int by Computed(SubComponentClassStyle::doubleStoreCounterFun)
+  val `$route` by Watch<dynamic>(SubComponentClassStyle::routeWatchFun)
+
+  override fun created() {
+    dataName = js("this.\$route.params.name")
+  }
+
+  fun resetName(){
+    val rnb = resetNameButton
+    console.log(rnb)
+    console.log(js("this.\$refs.resetNameButton"))
+    name = "Graham"
+    val _name = name
+    js("this.\$emit('nameWasReset', _name)")
+  }
+
+  fun navigateToTestComponent() {
+    js("this.\$router.push('/')")
+  }
+
+  fun incrementStoreCounter() {
+    testStore.state!!.counter++
+
+  }
+
+  fun decrementStoreCounter() {
+    testStore.state!!.counter--
+  }
+
+  fun incrementOtherCounter() {
+    this.otherCounter++
+  }
+
+  fun decrementOtherCounter() {
+    this.otherCounter--
+  }
+
+  fun storeCounterFun(): Int {
+    console.log("Store counter called")
+    return testStore.state!!.counter
+  }
+
+  fun doubleStoreCounterFun(): Int {
+    console.log("Double Store counter called")
+    return testStore.getters!!.doubleCounter
+  }
+
+  fun routeWatchFun(routeA: dynamic, routeB: dynamic){
+    this.dataName = routeA.params.name
+  }
 }
 
 

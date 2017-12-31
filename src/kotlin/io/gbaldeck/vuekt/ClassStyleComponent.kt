@@ -6,6 +6,9 @@ import kotlin.reflect.KProperty
 
 class ClassStyleComponent: VueComponent() {
 
+  override val template: dynamic
+    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+
   var test = 123
   var tester: String
 
@@ -14,7 +17,6 @@ class ClassStyleComponent: VueComponent() {
 
   init{
     tester = "set it"
-    println(ClassStyleComponent::testmethod.asDynamic()())
   }
 
   val test1234: String

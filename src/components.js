@@ -8,3 +8,5 @@ export const subComponent = Vue.component('sub-component', function (resolve, re
 export const testComponent = Vue.component('test-component', function (resolve, reject) {
   Communicator.setComponentResolver("test-component",resolve)
 });
+
+console.log("SubComponent: ", subComponent)
