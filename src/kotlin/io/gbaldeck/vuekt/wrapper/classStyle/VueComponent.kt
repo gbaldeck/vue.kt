@@ -78,7 +78,8 @@ object Vue{
         data[it] = component[it]
 
       } else {
-        val delegatePropertyKey = it.substringBefore("_")
+        val subIt = it.substringBeforeLast("$")
+        val delegatePropertyKey = subIt.substringBeforeLast("_")
 
         when(component[it]) {
           is VueComponent.Computed<*> -> {
@@ -111,7 +112,9 @@ object Vue{
       vueObject.methods[it] = component[it]
     }
 
-    vueObject.data = { data }
+    vueObject.data = {
+      js("Object").assign(createJsObject(), data)
+    }
 
     vueObject.beforeCreate = component["beforeCreate"]
 

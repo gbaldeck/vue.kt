@@ -2,7 +2,7 @@
   <div>
     <h3>You may view the User Details here</h3>
     <p>Many Details</p>
-    <p>User Name: {{ name ? "From params via Props: "+name : "Straight from params: "+dataName }}</p>
+    <p>User Name: {{ name_one ? "From params via Props: "+name_one : "Straight from params: "+data_name }}</p>
     <p v-if="$route.query">
       Locale: {{ $route.query.locale }}
     </p>

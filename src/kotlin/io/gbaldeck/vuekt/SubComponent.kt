@@ -36,29 +36,29 @@ external interface SubComputed {
 }
 
 class SubComponentClassStyle: io.gbaldeck.vuekt.wrapper.classStyle.VueComponent(){
-  override val template = require("KotlinSrc/SubComponent.html")
-  override val elementName: String = "sub-component"
+  override val template: dynamic = require("KotlinSrc/SubComponent.html")
+  override val elementName = "sub-component"
 
-  var dataName: String = ""
+  var data_name: String = ""
   var otherCounter = 0
 
-  var name: String by Prop()
+  var name_one: String by Prop()
   val resetNameButton: HTMLButtonElement by Ref()
 
   val storeCounter: Int by Computed(SubComponentClassStyle::storeCounterFun)
   val doubleStoreCounter: Int by Computed(SubComponentClassStyle::doubleStoreCounterFun)
-  val `$route` by Watch<dynamic>(SubComponentClassStyle::routeWatchFun)
+  val `$route`: dynamic by Watch(SubComponentClassStyle::routeWatchFun)
 
   override fun created() {
-    dataName = js("this.\$route.params.name")
+    data_name = js("this.\$route.params.name_one")
   }
 
   fun resetName(){
     val rnb = resetNameButton
     console.log(rnb)
     console.log(js("this.\$refs.resetNameButton"))
-    name = "Graham"
-    val _name = name
+    name_one = "Graham"
+    val _name = name_one
     js("this.\$emit('nameWasReset', _name)")
   }
 
@@ -94,7 +94,7 @@ class SubComponentClassStyle: io.gbaldeck.vuekt.wrapper.classStyle.VueComponent(
   }
 
   fun routeWatchFun(routeA: dynamic, routeB: dynamic){
-    this.dataName = routeA.params.name
+    this.data_name = routeA.params.name
   }
 }
 
