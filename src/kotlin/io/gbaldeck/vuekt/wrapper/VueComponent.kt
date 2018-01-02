@@ -147,9 +147,7 @@ object Vue{
 }
 
 fun stripGeneratedPostfix(name: String): String{
-  if(name.matches("^[.\\S]+[_][.\\S]+[\$]\$") ||
-    name.matches("^[.\\S]+[_][.\\S]+[\$][_][\\d]\$")){
-
+  if(name.matches("^[.\\S]+_[.\\S]+[\$](?:_\\d)?\$")){
     val subIt = name.substringBeforeLast("$")
     return subIt.substringBeforeLast("_")
   }
