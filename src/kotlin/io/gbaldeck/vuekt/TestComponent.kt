@@ -7,48 +7,6 @@ import org.w3c.dom.events.MouseEvent
 
 class Person(var name: String, var age: String)
 
-interface TestData{
-  var hello: String
-  var link: String
-  var x: Int
-  var y: Int
-  var counter: Int
-  var color: String
-  var counter2: Int
-  var attachRed: Boolean
-  var show: Boolean
-  var ingredients: Array<String>
-  var persons: Array<Person>
-  var showParagraph: Boolean
-  var title: String
-  var name: String
-}
-
-interface TestMethods{
-  var sayHello: () -> String
-
-}
-
-interface TestComputedFunctions {
-  var compOne: () -> String
-  var output: () -> String
-  var cssClasses: () -> dynamic
-}
-
-interface TestComputed {
-  var compOne: String
-  var output: String
-  var cssClasses: dynamic
-}
-
-interface TestWatch {
-  var counter2: (Int) -> Unit
-}
-
-interface TestRefs {
-  val myButton: HTMLButtonElement
-}
-
 class TestComponent: VueComponent(){
   override val template: dynamic = require("KotlinSrc/TestComponent.html")
 

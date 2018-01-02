@@ -1,17 +1,11 @@
 package io.gbaldeck.vuekt.wrapper
 
-external interface VueDirective {
-  var bind: ((el: dynamic, binding:dynamic, vnode:dynamic) -> Unit)?
-  var inserted: ((el: dynamic, binding:dynamic, vnode:dynamic) -> Unit)?
-  var update: ((el: dynamic, binding:dynamic, vnode:dynamic, oldVnode: dynamic) -> Unit)?
-  var componentUpdated: ((el: dynamic, binding:dynamic, vnode:dynamic, oldVnode: dynamic) -> Unit)?
-  var unbind: ((el: dynamic, binding:dynamic, vnode:dynamic) -> Unit)?
-}
+abstract class VueDirective: VueCommon {
+  open val elementName: String = _elementName()
 
-
-fun createVueDirective(name: String, config: VueDirective.() -> Unit): VueDirective{
-  val directive = createJsObject<VueDirective>()
-  directive.config()
-  Communicator.setDirectiveDefinition(name, directive)
-  return directive
+  open fun bind(el: dynamic, binding:dynamic, vnode:dynamic){}
+  open fun inserted(el: dynamic, binding:dynamic, vnode:dynamic){}
+  open fun update(el: dynamic, binding:dynamic, vnode:dynamic, oldVnode: dynamic){}
+  open fun componentUpdated(el: dynamic, binding:dynamic, vnode:dynamic, oldVnode: dynamic){}
+  open fun unbind(el: dynamic, binding:dynamic, vnode:dynamic){}
 }
