@@ -1,6 +1,6 @@
 package io.gbaldeck.vuekt
 
-import io.gbaldeck.vuekt.wrapper.classStyle.Vue
+import io.gbaldeck.vuekt.wrapper.Vue
 
 fun main(args: Array<String>) {
 

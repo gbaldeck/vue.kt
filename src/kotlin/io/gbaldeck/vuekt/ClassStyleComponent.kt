@@ -1,7 +1,7 @@
 package io.gbaldeck.vuekt
 
-import io.gbaldeck.vuekt.wrapper.classStyle.VueComponent
-import io.gbaldeck.vuekt.wrapper.classStyle.VueKtDelegate
+import io.gbaldeck.vuekt.wrapper.VueComponent
+import io.gbaldeck.vuekt.wrapper.VueKtDelegate
 import kotlin.reflect.KProperty
 
 class ClassStyleComponent: VueComponent() {

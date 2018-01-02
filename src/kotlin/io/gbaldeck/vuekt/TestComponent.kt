@@ -26,13 +26,7 @@ interface TestData{
 
 interface TestMethods{
   var sayHello: () -> String
-  var increase: (Int, Event) -> Unit
-  var updateCoordinates: (e: MouseEvent) -> Unit
-  var alertMe: () -> Unit
-  var result: () -> String
-  var showAndChangeText: () -> Unit
-  var destroy: () -> Unit
-  var changeName: () -> Unit
+
 }
 
 interface TestComputedFunctions {
@@ -55,87 +49,94 @@ interface TestRefs {
   val myButton: HTMLButtonElement
 }
 
-interface TestComponent: VueComponent<TestData, TestMethods, TestComputed, TestWatch, TestRefs, Unit>, VueRouteComponent<Unit, Unit>
+class TestComponent: VueComponent(){
+  override val template: dynamic = require("KotlinSrc/TestComponent.html")
 
-val initTestComponent = {
-  createVueComponent<TestComponent>("test-component", require("KotlinSrc/TestComponent.html")) {
-    initData {
-      hello = "Hello!"
-      link = "http://www.google.com"
-      counter = 0
-      x = 0
-      y = 0
-      color = "green"
-      counter2 = 0
-      attachRed = false
-      show = true
-      ingredients = arrayOf("meat", "vegetables", "salt")
-      persons = arrayOf(Person("sally","34"), Person("George", "23"))
-      showParagraph = false
-      title = "TO LOWER CASE"
-      name = "Graham"
-    }
+  var hello = "Hello!"
+  var link = "http://www.google.com"
+  var counter = 0
+  var x = 0
+  var y = 0
+  var color = "green"
+  var counter2: Int by Watch(0, TestComponent::counter2Watch)
+  var attachRed = false
+  var show = true
+  var ingredients = arrayOf("meat", "vegetables", "salt")
+  var persons = arrayOf(Person("sally","34"), Person("George", "23"))
+  var showParagraph = false
+  var title = "TO LOWER CASE"
+  var name = "Graham"
 
-    initMethods {
-      sayHello = {
-        vData.hello = "Hello again!"
-        vData.hello
-      }
-      increase = { num, e ->
-        vData.counter = vData.counter + num
-      }
-      updateCoordinates = { event ->
-        vData.x = event.clientX
-        vData.y = event.clientY
-      }
-      alertMe = {
-        alert("Alert!")
-      }
-      result = {
-        console.log("Method")
-        if (vData.counter2 > 5)
-          "Greater than 5"
-        else
-          "Smaller than 5"
-      }
+  val compOne: String by Computed(TestComponent::compOneComputed)
+  val output: String by Computed(TestComponent::outputComputed)
+  val cssClasses: dynamic by Computed(TestComponent::cssClassesComputed)
 
-      showAndChangeText = {
-        vData.showParagraph = !vData.showParagraph
-        vRefs.myButton.innerText = "Test"
-      }
+  val myButton: HTMLButtonElement by Ref()
 
-      destroy = {
-        js("this.\$destroy()")
-      }
+  fun sayHello(): String {
+    hello = "Hello again"
+    return hello
+  }
 
-      changeName = {
-        vData.name = "Sepheroth"
-      }
-    }
+  fun increase(num: Int, e: Event) {
+    counter += num
+  }
 
-    initComputed<TestComputedFunctions> {
-      compOne = {
-        "1" + vData.hello
-      }
-      output = {
-        console.log("Computed")
-        if (vData.counter2 > 5)
-          "Greater than 5"
-        else
-          "Smaller than 5"
-      }
-      cssClasses = {
-        val cssObj = createJsObject<dynamic>()
-        cssObj.red = vData.attachRed
-        cssObj.blue = !vData.attachRed
-        cssObj
-      }
-    }
+  fun updateCoordinates(event: MouseEvent){
+    x = event.clientX
+    y = event.clientY
+  }
+
+  fun alertMe(){
+    alert("Alert!")
+  }
+
+  fun result(): String{
+    console.log("Method")
+    if (counter2 > 5)
+      return "Greater than 5"
+    else
+      return "Smaller than 5"
+  }
+
+  fun showAndChangeText(){
+    showParagraph = !showParagraph
+    myButton.innerText = "Test"
+  }
+
+  fun destroy(){
+    js("this.\$destroy()")
+  }
+
+  fun changeName(){
+    name = "Sepheroth"
+  }
+
+  fun compOneComputed():String {
+    return "1" + hello
+  }
+
+  fun outputComputed():String {
+    console.log("Computed")
+    if (counter2 > 5)
+      return "Greater than 5"
+    else
+      return "Smaller than 5"
+  }
+  fun cssClassesComputed(): dynamic {
+    val cssObj = createJsObject<dynamic>()
+    cssObj.red = attachRed
+    cssObj.blue = !attachRed
+    return cssObj
+  }
+
+  fun counter2Watch() {
+    console.log("This was run!")
+  }
+}
 
     initWatch {
-      counter2 = { num ->
-        console.log("This was run!")
-      }
+
     }
 
     beforeCreate = {

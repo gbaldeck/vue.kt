@@ -1,108 +1,147 @@
 package io.gbaldeck.vuekt.wrapper
 
+import kotlin.reflect.KCallable
 import kotlin.reflect.KProperty
 
-external interface VueComponent<DATA, METHODS, COMPUTED, WATCH, REFS, PROPS>{
-  var render: dynamic
-  var staticRenderFns: dynamic
+interface VueKtDelegate
 
-  var data: (() -> DATA)?
-  var methods: METHODS?
-  var computed: COMPUTED?
-  var watch: WATCH?
-  var props: Array<String>
+abstract class VueComponent {
+  abstract val template: dynamic
+  open val elementName: String = _elementName()
 
-  var beforeCreate: Function<Unit>?
-  var created: Function<Unit>?
-  var beforeMount: Function<Unit>?
-  var mounted: Function<Unit>?
-  var beforeUpdate: Function<Unit>?
-  var updated: Function<Unit>?
-  var activated: Function<Unit>?
-  var deactivated: Function<Unit>?
-  var beforeDestroy: Function<Unit>?
-  var destroyed: Function<Unit>?
-  var errorCaptured: ((dynamic, VueComponent<*,*,*,*,*,*>, String) -> Boolean?)?
-}
+  open fun beforeCreate(){}
+  open fun created(){}
+  open fun beforeMount(){}
+  open fun mounted(){}
+  open fun beforeUpdate(){}
+  open fun updated(){}
+  open fun activated(){}
+  open fun deactivated(){}
+  open fun beforeDestroy(){}
+  open fun destroyed(){}
+  open fun errorCaptured(err: dynamic, vm: dynamic, info: String): Boolean? = undefined
 
-inline fun <DATA> VueComponent<DATA, *, *, *, *, *>.initData(noinline config: DATA.() -> Unit){
-  data = {
-    val configTemp = config //so that the DCE doesn't cut out the parameter since its not being used in the Kotlin code
-    val tempData = createJsObject<DATA>()
-    js("configTemp.call(this, tempData)") //the function is losing reference to the Vue 'this', so must bind the local 'this' to the function
-    tempData
+  class Computed<out T>(private val method: KCallable<T>): VueKtDelegate {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+      return Pair(property.name, method.name).asDynamic()
+    }
+  }
+
+  class Watch<T>(private val method: KCallable<T>): VueKtDelegate {
+
+    private var value: dynamic = undefined
+
+    constructor(initialValue: T, method: KCallable<T>): this(method){
+      value = initialValue
+    }
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): dynamic {
+      return Triple(property.name, value, method.name).asDynamic()
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+      this.value = value
+    }
+  }
+
+  inner class Ref<T>: VueKtDelegate {
+    operator fun getValue(thisRef: Any, property: KProperty<*>): T {
+      return Pair(property.name, {
+        val propertyName = property.name
+        js("this.\$refs[propertyName]")
+      }).asDynamic()
+    }
+  }
+
+  class Prop<T>: VueKtDelegate {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+      return property.name.asDynamic()
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+    }
   }
 }
 
-inline fun <METHODS> VueComponent<*, METHODS, *, *, *, *>.initMethods(config: METHODS.() -> Unit){
-  methods = createJsObject()
-  methods!!.config()
-}
-
-inline fun <COMPUTEDFUNCTIONS> VueComponent<*, *, *, *, *, *>.initComputed(config: COMPUTEDFUNCTIONS.() -> Unit){
-  val tempcomputed = createJsObject<COMPUTEDFUNCTIONS>()
-  tempcomputed.config()
-
-  val _this = this
-  js("_this.computed = tempcomputed")
-}
-
-inline fun <WATCH> VueComponent<*, *, *, WATCH, *, *>.initWatch(config: WATCH.() -> Unit){
-  if(isNullOrUndefined(watch))
-    watch = createJsObject()
-
-  watch!!.config()
-}
-
-fun <PROPS> VueComponent<*, *, *, *, *, PROPS>.initProps(vararg propsList: KProperty<*>){
-  props = arrayOf()
-  propsList.forEachIndexed {
-    index, prop ->
-    props[index] = prop.name
-  }
-}
-
-inline val <DATA> VueComponent<DATA, *, *, *, *, *>.vData: DATA
-  get() {
-    return js("this")
-  }
-
-inline val <METHODS>VueComponent<*, METHODS, *, *, *, *>.vMethods: METHODS
-  get() {
-    return js("this")
-  }
-
-inline val <COMPUTED> VueComponent<*, *, COMPUTED, *, *, *>.vComputed: COMPUTED
-  get() {
-    return js("this")
-  }
-
-inline val <WATCH>VueComponent<*, *, *, WATCH, *, *>.vWatch: WATCH
-  get() {
-    return js("this")
-  }
-
-inline val <REFS> VueComponent<*, *, *, *, REFS, *>.vRefs: REFS
-  get() {
-    return js("this.\$refs")
-  }
-
-inline val <PROPS>
-  VueComponent<*, *, *, *, *, PROPS>.vProps: PROPS
-  get() {
-    return js("this")
-  }
-
-inline fun <EMITDATA> VueComponent<*, *, *, *, *, *>.vEmit(eventName: String, emitData: EMITDATA){
+inline fun <EMITDATA> VueComponent.emit(eventName: String, emitData: EMITDATA){
   js("this.\$emit(eventName, emitData)")
 }
 
-fun <T: VueComponent<*, *, *, *, *, *>> createVueComponent(tagName: String, template: dynamic, config: T.() -> Unit): T{
-  val component = createJsObject<T>()
-  component.config()
-  component.render = template.render
-  component.staticRenderFns = template.staticRenderFns
-  Communicator.setComponentDefinition(tagName, component)
+private fun VueComponent._elementName() = this::class.simpleName!!.camelToDashCase().toLowerCase()
 
-  return component
+object Vue{
+  infix fun component(vueComponent: VueComponent){
+    val component = vueComponent.asDynamic()
+    val ownNames = js("Object").getOwnPropertyNames(component) as Array<String>
+    val protoNames = js("Object").getOwnPropertyNames(component.constructor.prototype) as Array<String>
+    println(ownNames)
+    println(protoNames)
+
+    val vueObject = createJsObject<dynamic>()
+    val data = createJsObject<dynamic>()
+    vueObject.methods = createJsObject<dynamic>()
+    vueObject.computed = createJsObject<dynamic>()
+    vueObject.watches = createJsObject<dynamic>()
+    vueObject.props = arrayOf<String>().asDynamic()
+
+    val lifeCycleHooks = arrayOf("beforeCreate","created","beforeMount",
+      "mounted","beforeUpdate","updated","activated","deactivated","beforeDestroy","destroyed","errorCaptured")
+
+    val protoNamesList = protoNames.toMutableList()
+    protoNamesList.remove("constructor")
+    protoNamesList.removeAll(lifeCycleHooks)
+
+    ownNames.forEach {
+      if(component[it] !is VueKtDelegate) {
+        data[it] = component[it]
+
+      } else {
+        val subIt = it.substringBeforeLast("$")
+        val delegatePropertyKey = subIt.substringBeforeLast("_")
+
+        when(component[it]) {
+          is VueComponent.Computed<*> -> {
+            val (propertyName, methodName) = component[delegatePropertyKey] as Pair<String, String>
+            vueObject.computed[propertyName] = component[methodName]
+            protoNamesList.remove(methodName)
+          }
+          is VueComponent.Watch<*> -> {
+            val (propertyName, propertyValue, methodName) = component[delegatePropertyKey] as Triple<String, dynamic, String>
+
+            data[propertyName] = propertyValue
+            vueObject.watches[propertyName] = component[methodName]
+            protoNamesList.remove(methodName)
+          }
+          is VueComponent.Ref<*> -> {
+            val (propertyName, refComputedFun) = component[delegatePropertyKey] as Pair<String, dynamic>
+            vueObject.computed[propertyName] = refComputedFun
+          }
+          is VueComponent.Prop<*> -> {
+            val propName = component[delegatePropertyKey]
+            vueObject.props.push(propName)
+          }
+
+        }
+        protoNamesList.remove(delegatePropertyKey)
+      }
+    }
+
+    protoNamesList.forEach {
+      vueObject.methods[it] = component[it]
+    }
+
+    vueObject.data = {
+      js("Object").assign(createJsObject(), data)
+    }
+
+    lifeCycleHooks.forEach {
+      vueObject[it] = component[it]
+    }
+
+    vueObject.render = component.template.render
+    vueObject.staticRenderFns = component.template.staticRenderFns
+    Communicator.setComponentDefinition(vueComponent.elementName, vueObject)
+  }
 }
+
+fun getType(item: dynamic): String = js("Object").prototype.toString.call(item)
