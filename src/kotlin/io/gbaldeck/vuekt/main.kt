@@ -11,7 +11,8 @@ fun main(args: Array<String>) {
   //this is so that everything their template needs will be available when they are rendered
 //  initSubComponent()
   Vue component SubComponentClassStyle()
-  initTestComponent()
+  Vue component TestComponent()
+//  initTestComponent()
 
 //  Vue component ClassStyleComponent()
 }

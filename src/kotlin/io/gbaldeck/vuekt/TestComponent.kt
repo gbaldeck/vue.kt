@@ -133,43 +133,37 @@ class TestComponent: VueComponent(){
   fun counter2Watch() {
     console.log("This was run!")
   }
-}
 
-    initWatch {
-
-    }
-
-    beforeCreate = {
-      println("beforeCreate()")
-    }
-
-    created = {
-      println("beforeCreate()")
-    }
-
-    beforeMount = {
-      println("beforeMount()")
-    }
-
-    mounted = {
-      println("mounted()")
-    }
-
-    beforeUpdate = {
-      println("beforeUpdate()")
-    }
-
-    updated = {
-      println("updated()")
-    }
-
-    beforeDestroy = {
-      println("beforeDestroy()")
-    }
-
-    destroyed = {
-      println("destroyed()")
-    }
-
+  override fun beforeCreate() {
+    println("beforeCreate()")
   }
+
+  override fun created() {
+    println("beforeCreate()")
+  }
+
+  override fun beforeMount() {
+    println("beforeMount()")
+  }
+
+  override fun mounted() {
+    println("mounted()")
+  }
+
+  override fun beforeUpdate() {
+    println("beforeUpdate()")
+  }
+
+  override fun updated() {
+    println("updated()")
+  }
+
+  override fun beforeDestroy() {
+    println("beforeDestroy()")
+  }
+
+  override fun destroyed() {
+    println("destroyed()")
+  }
+
 }

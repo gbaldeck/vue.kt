@@ -1,7 +1,7 @@
 package io.gbaldeck.vuekt.wrapper
 
 external interface CommunicatorInstance {
-  fun setComponentDefinition(tagName: String, component: VueComponent<*, *, *, *, *, *>)
+  fun setComponentDefinition(tagName: String, component: VueComponent)
   fun setDirectiveDefinition(name: String, directive: VueDirective)
   fun setFilterFunction(name: String, filterFun: Function<dynamic>)
   val components: dynamic

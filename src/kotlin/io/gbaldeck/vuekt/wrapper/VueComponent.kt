@@ -88,16 +88,18 @@ object Vue{
       "mounted","beforeUpdate","updated","activated","deactivated","beforeDestroy","destroyed","errorCaptured")
 
     val protoNamesList = protoNames.toMutableList()
-    protoNamesList.remove("constructor")
+    protoNamesList.removeAll(arrayOf("constructor", "template", "elementName"))
     protoNamesList.removeAll(lifeCycleHooks)
 
     ownNames.forEach {
       if(component[it] !is VueKtDelegate) {
-        data[it] = component[it]
+        val dataKey = stripGeneratedPostfix(it)
+
+        if(dataKey != "template" && dataKey != "elementName")
+          data[dataKey] = component[it]
 
       } else {
-        val subIt = it.substringBeforeLast("$")
-        val delegatePropertyKey = subIt.substringBeforeLast("_")
+        val delegatePropertyKey = stripGeneratedPostfix(it)
 
         when(component[it]) {
           is VueComponent.Computed<*> -> {
@@ -127,7 +129,7 @@ object Vue{
     }
 
     protoNamesList.forEach {
-      vueObject.methods[it] = component[it]
+      vueObject.methods[stripGeneratedPostfix(it)] = component[it]
     }
 
     vueObject.data = {
@@ -135,7 +137,7 @@ object Vue{
     }
 
     lifeCycleHooks.forEach {
-      vueObject[it] = component[it]
+      vueObject[stripGeneratedPostfix(it)] = component[it]
     }
 
     vueObject.render = component.template.render
@@ -144,4 +146,13 @@ object Vue{
   }
 }
 
-fun getType(item: dynamic): String = js("Object").prototype.toString.call(item)
+fun stripGeneratedPostfix(name: String): String{
+  if(name.matches("^[.\\S]+[_][.\\S]+[\$]\$") ||
+    name.matches("^[.\\S]+[_][.\\S]+[\$][_][\\d]\$")){
+
+    val subIt = name.substringBeforeLast("$")
+    return subIt.substringBeforeLast("_")
+  }
+
+  return name
+}
