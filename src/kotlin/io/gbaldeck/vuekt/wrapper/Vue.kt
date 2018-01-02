@@ -108,11 +108,10 @@ fun stripGeneratedPostfix(name: String): String{
 
 fun findSpecificNamesWithPostfix(searchArr: Array<String>, names: Array<String>): Array<String>{
   val arr = mutableListOf<String>()
-  val searchArrList = searchArr.toList()
 
   names.forEach {
     name ->
-    val item = searchArrList.find { it.matches("^$name(?:$postfixRegex)?\$") }
+    val item = searchArr.find { it.matches("^$name(?:$postfixRegex)?\$") }
 
     item?.let{ arr.add(it) }
   }
