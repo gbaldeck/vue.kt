@@ -28,13 +28,13 @@ object Vue{
 
     ownNames.forEach {
       if(component[it] !is VueKtDelegate) {
-        val dataKey = it
+        val dataKey = stripGeneratedPostfix(it)
 
         if(dataKey != "template" && dataKey != "elementName")
           data[dataKey] = component[it]
 
       } else {
-        val delegatePropertyKey = it
+        val delegatePropertyKey = stripGeneratedPostfix(it)
 
         when(component[it]) {
           is VueComponent.Computed<*> -> {
@@ -50,6 +50,8 @@ object Vue{
             protoNamesList.remove(methodName)
           }
           is VueComponent.Ref<*> -> {
+            console.log(delegatePropertyKey)
+            console.log(component[delegatePropertyKey])
             val (propertyName, refComputedFun) = component[delegatePropertyKey] as Pair<String, dynamic>
             definition.computed[propertyName] = refComputedFun
           }
@@ -102,14 +104,16 @@ object Vue{
   }
 }
 
-//fun stripGeneratedPostfix(name: String): String{
-//  if(name.matches("^[.\\S]+$postfixRegex\$")){
-//    val subIt = name.substringBeforeLast("$")
-//    return subIt.substringBeforeLast("_")
-//  }
-//
-//  return name
-//}
+fun stripGeneratedPostfix(name: String): String{
+  if(name.matches("^[.\\S]+$postfixRegex\$")){
+    val subIt = name.substringBeforeLast("$")
+    return subIt.substringBeforeLast("_")
+  }
+
+  return name
+}
+
+private val postfixRegex = "_[.\\S]+[\$](?:_\\d)?"
 //
 //fun findSpecificNamesWithPostfix(searchArr: Array<String>, names: Array<String>): Array<String>{
 //  val arr = mutableListOf<String>()
@@ -124,4 +128,4 @@ object Vue{
 //  return arr.toTypedArray()
 //}
 //
-//private val postfixRegex = "_[.\\S]+[\$](?:_\\d)?"
+

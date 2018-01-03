@@ -3,38 +3,6 @@ package io.gbaldeck.vuekt
 import io.gbaldeck.vuekt.wrapper.*
 import org.w3c.dom.HTMLButtonElement
 
-external interface SubMethods {
-  var resetName: () -> Unit
-  var navigateToTestComponent: () -> Unit
-  var incrementStoreCounter: () -> Unit
-  var decrementStoreCounter: () -> Unit
-  var incrementOtherCounter: () -> Unit
-  var decrementOtherCounter: () -> Unit
-}
-
-external interface SubProps {
-  var name: String
-}
-
-external interface SubData {
-  var dataName: String
-  var otherCounter: Int
-}
-
-external interface SubWatch {
-  var `$route`: (VueRoute<SubProps, *>, VueRoute<SubProps, *>) -> Unit
-}
-
-external interface SubComputedFunctions {
-  var storeCounter: () -> Int
-  var doubleStoreCounter: () -> Int
-}
-
-external interface SubComputed {
-  var storeCounter: Int
-  var doubleStoreCounter: Int
-}
-
 class SubComponentClassStyle: VueComponent(){
   override val template: dynamic = require("KotlinSrc/SubComponent.html")
   override val elementName = "sub-component"
