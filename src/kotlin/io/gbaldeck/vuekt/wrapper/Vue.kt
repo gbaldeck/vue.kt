@@ -50,8 +50,6 @@ object Vue{
             protoNamesList.remove(methodName)
           }
           is VueComponent.Ref<*> -> {
-            console.log(delegatePropertyKey)
-            console.log(component[delegatePropertyKey])
             val (propertyName, refComputedFun) = component[delegatePropertyKey] as Pair<String, dynamic>
             definition.computed[propertyName] = refComputedFun
           }
