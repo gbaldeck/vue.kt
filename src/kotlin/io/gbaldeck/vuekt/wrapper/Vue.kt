@@ -1,7 +1,7 @@
 package io.gbaldeck.vuekt.wrapper
 
 interface VueCommon
-fun VueCommon._elementName() = this::class.simpleName!!.camelToDashCase().toLowerCase()
+fun VueCommon._name() = this::class.simpleName!!.camelToDashCase().toLowerCase()
 
 object Vue{
   infix fun component(vueComponent: VueComponent){
@@ -22,20 +22,19 @@ object Vue{
       "mounted","beforeUpdate","updated","activated","deactivated","beforeDestroy","destroyed","errorCaptured")
 
     val protoNamesList = protoNames.toMutableList()
-    val actualLifeCycleHooks = findSpecificNamesWithPostfix(protoNames, lifeCycleHooks)
 
     protoNamesList.removeAll(arrayOf("constructor", "template", "elementName"))
-    protoNamesList.removeAll(actualLifeCycleHooks)
+    protoNamesList.removeAll(lifeCycleHooks)
 
     ownNames.forEach {
       if(component[it] !is VueKtDelegate) {
-        val dataKey = stripGeneratedPostfix(it)
+        val dataKey = it
 
         if(dataKey != "template" && dataKey != "elementName")
           data[dataKey] = component[it]
 
       } else {
-        val delegatePropertyKey = stripGeneratedPostfix(it)
+        val delegatePropertyKey = it
 
         when(component[it]) {
           is VueComponent.Computed<*> -> {
@@ -65,15 +64,15 @@ object Vue{
     }
 
     protoNamesList.forEach {
-      definition.methods[stripGeneratedPostfix(it)] = component[it]
+      definition.methods[it] = component[it]
     }
 
     definition.data = {
       js("Object").assign(createJsObject(), data)
     }
 
-    actualLifeCycleHooks.forEach {
-      definition[stripGeneratedPostfix(it)] = component[it]
+    lifeCycleHooks.forEach {
+      definition[it] = component[it]
     }
 
     definition.render = component.template.render
@@ -86,37 +85,43 @@ object Vue{
     val protoNames = js("Object").getOwnPropertyNames(directive.constructor.prototype) as Array<String>
 
     val lifeCycleHooks = arrayOf("bind", "inserted", "update", "componentUpdated", "unbind")
-    val actualLifeCycleHooks = findSpecificNamesWithPostfix(protoNames, lifeCycleHooks)
 
     val definition = createJsObject<dynamic>()
-    actualLifeCycleHooks.forEach {
-      definition[stripGeneratedPostfix(it)] = directive[it]
+    lifeCycleHooks.forEach {
+      definition[it] = directive[it]
     }
 
-    Communicator.setDirectiveDefinition(vueDirective.elementName, definition)
+    Communicator.setDirectiveDefinition(vueDirective.name, definition)
+  }
+
+  infix fun filter(vueFilter: VueFilter){
+    val filter = vueFilter.asDynamic()
+    val filterFun = filter[vueFilter.filter.name]
+
+    Communicator.setFilterFunction(vueFilter.name, filterFun)
   }
 }
 
-fun stripGeneratedPostfix(name: String): String{
-  if(name.matches("^[.\\S]+$postfixRegex\$")){
-    val subIt = name.substringBeforeLast("$")
-    return subIt.substringBeforeLast("_")
-  }
-
-  return name
-}
-
-fun findSpecificNamesWithPostfix(searchArr: Array<String>, names: Array<String>): Array<String>{
-  val arr = mutableListOf<String>()
-
-  names.forEach {
-    name ->
-    val item = searchArr.find { it.matches("^$name(?:$postfixRegex)?\$") }
-
-    item?.let{ arr.add(it) }
-  }
-
-  return arr.toTypedArray()
-}
-
-private val postfixRegex = "_[.\\S]+[\$](?:_\\d)?"
+//fun stripGeneratedPostfix(name: String): String{
+//  if(name.matches("^[.\\S]+$postfixRegex\$")){
+//    val subIt = name.substringBeforeLast("$")
+//    return subIt.substringBeforeLast("_")
+//  }
+//
+//  return name
+//}
+//
+//fun findSpecificNamesWithPostfix(searchArr: Array<String>, names: Array<String>): Array<String>{
+//  val arr = mutableListOf<String>()
+//
+//  names.forEach {
+//    name ->
+//    val item = searchArr.find { it.matches("^$name(?:$postfixRegex)?\$") }
+//
+//    item?.let{ arr.add(it) }
+//  }
+//
+//  return arr.toTypedArray()
+//}
+//
+//private val postfixRegex = "_[.\\S]+[\$](?:_\\d)?"

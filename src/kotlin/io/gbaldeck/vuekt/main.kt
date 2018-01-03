@@ -4,7 +4,7 @@ import io.gbaldeck.vuekt.wrapper.Vue
 
 fun main(args: Array<String>) {
 
-  initToLowerCaseFilter()
+//  initToLowerCaseFilter()
 //  initHighlightDirective()
 
   //just in case, always init components last
@@ -13,6 +13,7 @@ fun main(args: Array<String>) {
   Vue component SubComponentClassStyle()
   Vue component TestComponent()
   Vue directive HighlightDirective()
+  Vue filter ToLowerCaseFilter()
 //  initTestComponent()
 
 //  Vue component ClassStyleComponent()

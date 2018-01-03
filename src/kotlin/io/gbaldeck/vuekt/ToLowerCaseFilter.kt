@@ -1,10 +1,15 @@
 package io.gbaldeck.vuekt
 
-import io.gbaldeck.vuekt.wrapper.createVueFilter
+import io.gbaldeck.vuekt.wrapper.VueFilter
+import kotlin.reflect.KCallable
 
-val initToLowerCaseFilter = {
-  createVueFilter("to-lowercase") {
-    value: dynamic ->
-    value.toLowerCase()
+class ToLowerCaseFilter: VueFilter(){
+  override val name: String = "to-lowercase"
+
+  override val filter: KCallable<*> = ToLowerCaseFilter::toLowerCase
+
+  @JsName("toLowerCase")
+  fun toLowerCase(value: dynamic){
+    return value.toLowerCase()
   }
 }

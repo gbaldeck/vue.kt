@@ -31,24 +31,30 @@ class TestComponent: VueComponent(){
 
   val myButton: HTMLButtonElement by Ref()
 
+  @JsName("sayHello")
   fun sayHello(): String {
     hello = "Hello again"
     return hello
   }
 
+  @JsName("increase")
   fun increase(num: Int, e: Event) {
     counter += num
+    updateCoordinates(e as MouseEvent)
   }
 
+  @JsName("updateCoordinates")
   fun updateCoordinates(event: MouseEvent){
     x = event.clientX
     y = event.clientY
   }
 
+  @JsName("alertMe")
   fun alertMe(){
     alert("Alert!")
   }
 
+  @JsName("result")
   fun result(): String{
     console.log("Method")
     if (counter2 > 5)
@@ -57,23 +63,28 @@ class TestComponent: VueComponent(){
       return "Smaller than 5"
   }
 
+  @JsName("showAndChangeText")
   fun showAndChangeText(){
     showParagraph = !showParagraph
     myButton.innerText = "Test"
   }
 
+  @JsName("destroy")
   fun destroy(){
     js("this.\$destroy()")
   }
 
+  @JsName("changeName")
   fun changeName(){
     name = "Sepheroth"
   }
 
+  @JsName("compOneComputed")
   fun compOneComputed():String {
     return "1" + hello
   }
 
+  @JsName("outputComputed")
   fun outputComputed():String {
     console.log("Computed")
     if (counter2 > 5)
@@ -81,6 +92,8 @@ class TestComponent: VueComponent(){
     else
       return "Smaller than 5"
   }
+
+  @JsName("cssClassesComputed")
   fun cssClassesComputed(): dynamic {
     val cssObj = createJsObject<dynamic>()
     cssObj.red = attachRed
@@ -88,6 +101,7 @@ class TestComponent: VueComponent(){
     return cssObj
   }
 
+  @JsName("counter2Watch")
   fun counter2Watch() {
     console.log("This was run!")
   }

@@ -7,18 +7,29 @@ interface VueKtDelegate
 
 abstract class VueComponent: VueCommon {
   abstract val template: dynamic
-  open val elementName: String = _elementName()
+  open val elementName: String = _name()
 
+  @JsName("beforeCreate")
   open fun beforeCreate(){}
+  @JsName("created")
   open fun created(){}
+  @JsName("beforeMount")
   open fun beforeMount(){}
+  @JsName("mounted")
   open fun mounted(){}
+  @JsName("beforeUpdate")
   open fun beforeUpdate(){}
+  @JsName("updated")
   open fun updated(){}
+  @JsName("activated")
   open fun activated(){}
+  @JsName("deactivated")
   open fun deactivated(){}
+  @JsName("beforeDestroy")
   open fun beforeDestroy(){}
+  @JsName("destroyed")
   open fun destroyed(){}
+  @JsName("errorCaptured")
   open fun errorCaptured(err: dynamic, vm: dynamic, info: String): Boolean? = undefined
 
   class Computed<out T>(private val method: KCallable<T>): VueKtDelegate {

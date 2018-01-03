@@ -5,7 +5,7 @@ import io.gbaldeck.vuekt.wrapper.setTimeout
 
 class HighlightDirective: VueDirective(){
 
-  override val elementName: String = "highlight"
+  override val name: String = "highlight"
 
   override fun bind(el: dynamic, binding: dynamic, vnode: dynamic) {
 //    el.style.backgroundColor = "green"
